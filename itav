@@ -1,0 +1,181 @@
+#! /usr/bin/env python
+
+#add needed imports
+import curses
+import sys
+
+#get Image class from Python Imaging Library
+from PIL import Image
+
+#build main method to run in curses wrapper (not run until image file opened)
+def main(screen):
+    #initialize variables 
+    i=c=r=g=b=1
+    d=0
+    debug=''
+
+    #make ASCII scale of 52 values (255 / 5 + 1)
+    ######0123456789012345678901234567890123456789012345678901#
+    text=' .`,-~_:;^"+<=!\|([{*vcoseijtl?hkb7LDVYXSKHG8BW&%#@$'
+
+    #hide cursor
+    curses.curs_set(0)
+
+    #initialize color formatting with pair number equal to color number from 1 to 7
+    #colors are additions of red + 2*green + 4*blue
+    for x in range(1,8):
+        curses.init_pair(x,x,0)
+    
+    #get screen dimensions
+    h,w=screen.getmaxyx()
+
+    #resize image to be as big as possible and fit in screen dimensions
+    image.thumbnail((w,h),Image.ANTIALIAS)
+
+    #make image quickly callable
+    pix=image.load()
+
+    #loop until an exit key is pressed 
+    while c!='v' and c!='x' and c!='q':
+        #find lowest and highest shades it intensity is on
+        if i:
+            #initialize low and high
+            low=255
+            high=0
+
+            #loop through every (x,y) pair in the image
+            for x in range(image.size[0]):
+                for y in range(image.size[1]):
+                    #copy pixel at (x,y) to color variable
+                    color=pix[x,y]
+
+                    #make shade value from average of shown colors
+                    shade=(color[0]*r+color[1]*g+color[2]*b)/(r+g+b)
+
+                    #check is shade is a new extreme and assign it to new extreme if so
+                    if shade<low:
+                        low=shade
+                    if shade>high:
+                        high=shade
+
+            #avoid divide by zero by making sure high is greater than low
+            high+=low==high
+
+        #loop through all pixels
+        for x in range(image.size[0]):
+            for y in range(image.size[1]):
+                #assign color and make shade
+                color=pix[x,y]
+                shade=(color[0]*r+color[1]*g+color[2]*b)/(r+g+b)
+
+                #if intense stretch shade to encompass full 0-255 scale
+                if i:
+                    shade=int(255.0*(shade-low)/(high-low))
+
+                #draw corresponding ASCII character at (x,y) on screen
+                screen.addstr(y, x, text[int((shade+2)/5)], curses.color_pair(r+2*g+4*b))
+
+        #make debug message
+        debug='R '+str(r)+' G '+str(g)+' B '+str(b)+' Intense '+str(int(i))
+
+        #start blank border around debug text
+        space='  '
+
+        #show debug if requested and existing
+        if debug!='' and d:
+            #make blank border around debug text
+            for letter in str(debug):
+                space=' '+space
+
+            #draw top border
+            screen.addstr(h-2,0,space)
+
+            #draw debug text with border spacing after
+            screen.addstr(h-1,0,str(debug)+'  ')
+
+        #apply drawings to screen
+        screen.refresh()
+
+        #get next character typed
+        try:
+            c=chr(screen.getch())
+
+        #avoid crash from input like arrow keys
+        except(ValueError):
+            c=1
+
+        #check character's action
+
+        #change colors
+        if c=='w':              #show white (red,green and blue)
+            r=g=b=1
+
+        elif c=='r':            #show red only
+            r=1
+            g=b=0
+        elif c=='y' or c=='a':  #show yellow/amber (red and green)
+            r=g=1
+            b=0
+        elif c=='g':            #show green only
+            g=1
+            r=b=0
+        elif c=='c':            #show cyan (blue and green)
+            g=b=1
+            r=0
+        elif c=='b':            #show blue only
+            b=1
+            r=g=0
+        elif c=='m':            #show magenta (red and blue)
+            r=b=1
+            g=0
+
+        #toggle intensity and debug message
+        elif c=='i':
+            i=not i
+        elif c=='d':
+            d=not d
+
+        #clear debug message in case turned off and not covered by image
+        screen.addstr(h-1,0,space)
+
+ ###############################################
+#                                               #
+#  the following is run before the main method  #
+#                                               #
+ ###############################################
+
+#check if any arguments were passed
+if len(sys.argv)>1:
+    #if help flag is passed print help text and exit
+    if sys.argv[1]=='-h':
+        print('\n\n Image to ASCII art Viewer Help\n')
+        print(' itav [FILENAME]\n')
+        print(' I:              intensity toggle')
+        print(' D:              debug message toggle')
+        print(' W R Y G C B M:  change colors displayed')
+        print(' X,Q,V:          exit\n\n')
+        exit()
+
+    #if not a flag use as initial file name
+    else:
+        filename=sys.argv[1]
+
+#if no file name given ask for one
+else:
+    try:
+        filename=raw_input('\nEnter file name: ')
+    except(NameError):
+        filename=input('\nEnter file name: ')
+
+#try to open image
+try:
+    image=Image.open(filename)
+
+#print error message if image not opened
+except(IOError):
+    error='\nCould not open file '+filename+'\nAdd -h for help\n'
+    print(error)
+    exit()
+
+#start curses window running the main method
+curses.wrapper(main)
