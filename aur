@@ -1,0 +1,89 @@
+#!/bin/bash
+
+#initialize
+helpPage='Help Page Open'
+install=false
+installFromDir=false
+package=''
+edit=false
+args=("$@")
+force=''
+
+#process arguments
+for (( i=0; i<${#args[@]}; i++)); do
+	arg=${args[i]}
+	if [[ ${arg:0:1} == '-' ]]; then
+		#set install and get package name
+		if [[ $arg == *S* ]]; then
+			install=true
+			package=${args[i+1]}
+			echo 'install: true'
+			echo 'package:' $package
+		fi
+
+		if [[ $arg == *f* ]]; then
+			force='f'
+		fi
+
+		#show help
+		if [[ $arg == *h* ]]; then
+			echo $helpPage
+			exit
+		fi
+
+		#allow editing before install
+		if [[ $arg == *e* ]]; then
+			install=false
+			echo 'install:' $install
+			echo 'editable'
+			echo 'finish install with "aur -d"'
+		fi
+
+		#install edited packages
+		if [[ $arg == *d* ]]; then
+			installFromDir=true
+			echo 'set to install:' *
+		fi
+	fi
+done
+
+#make aur directory if it doesn't exist
+if [[ ! -e ~/.aur ]]; then
+	mkdir ~/.aur
+fi
+
+#change working directory to aur directory
+cd ~/.aur
+
+#check for other packages
+if [[ $(ls -A ~/.aur) != '' && $installFromDir == false ]]; then
+	echo 'files not installed:'
+	echo *
+	echo 'install with "aur -d"'
+fi
+
+#download
+wget --no-check-certificate https://aur.archlinux.org/packages/${package:0:2}/${package}/${package}.tar.gz
+
+#unzip
+tar -xzf ${package}.tar.gz
+
+#enter directory
+cd ${package}
+
+#make package
+makepkg -s
+
+#check for README
+if [[ -e ~/.aur/${package}.pkg.tar.gz/READ* ]]; then
+	less READ*
+elif [[ -e ./src/READ* ]]; then
+	less src/READ*
+fi
+
+#install
+su -c "pacman -U ${force} ${package}*.pkg.tar.xz"
+
+#clean up
+cd ~
+rm -rf ~/.aur/${package}*
