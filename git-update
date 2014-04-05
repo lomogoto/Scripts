@@ -1,5 +1,5 @@
 #!/bin/bash
 git add --all
-echo $@
-git commit -m "'"$@"'"
+echo "'"$@"'"
+git commit -m"'"$@"'"
 #git push
