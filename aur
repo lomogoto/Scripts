@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #initialize
-helpPage='Help Page Open'
-install=false
-installFromDir=false
 package=''
-edit=false
 args=("$@")
-force=''
+
+download=false
+delete=false
+install=false
+force=false
 
 #process arguments
 for (( i=0; i<${#args[@]}; i++)); do
@@ -16,33 +16,66 @@ for (( i=0; i<${#args[@]}; i++)); do
 		#set install and get package name
 		if [[ $arg == *S* ]]; then
 			install=true
+			download=true
+			delete=true
 			package=${args[i+1]}
-			echo 'install: true'
-			echo 'package:' $package
+		fi
+
+		#install only
+		if [[ $arg == *I* ]]; then
+			install=true
+			package=${args[i+1]}
 		fi
 
 		if [[ $arg == *f* ]]; then
-			force='f'
+			force=true
+		fi
+
+		if [[ $arg == *c* ]]; then
+			delete=true
 		fi
 
 		#show help
 		if [[ $arg == *h* ]]; then
-			echo $helpPage
-			exit
+			echo 'aur help'
+			echo
+			echo 'options:'
+			echo '    S : basic install'
+			echo '    I : install only'
+			echo '    e : edit package'
+			echo '        do not install or delete'
+			echo '        used with S'
+			echo '    c : cleanup'
+			echo '        default with S'
+			echo '        not default with I'
+			echo '    d : keep dirty'
+			echo '        do not cleanup'
+			echo '        used with S'
+			echo '    f : force install'
+			echo '        used with S or I'
+			echo '    h : display help'
+			echo
+			echo 'usage examples:'
+			echo '    aur -S [package]   : install'
+			echo '    aur -Se [package]  : download to edit in ~/.aur/'
+			echo '    aur -Ic [package]  : install from and clear ~/.aur/'
+			echo '    aur -c             : clear ~/.aur/'
+			echo '    aur -Sd [package]  : install without clearing'
+			echo '                         avoids downloading again if'
+			echo '                         occurs'
+			echo '    aur -Sf [package]  : install forcibly'
+			echo
 		fi
 
-		#allow editing before install
+		#edit before install
 		if [[ $arg == *e* ]]; then
+			delete=false
 			install=false
-			echo 'install:' $install
-			echo 'editable'
-			echo 'finish install with "aur -d"'
 		fi
 
-		#install edited packages
+		#keep dirty
 		if [[ $arg == *d* ]]; then
-			installFromDir=true
-			echo 'set to install:' *
+			delete=false
 		fi
 	fi
 done
@@ -55,35 +88,35 @@ fi
 #change working directory to aur directory
 cd ~/.aur
 
-#check for other packages
-if [[ $(ls -A ~/.aur) != '' && $installFromDir == false ]]; then
-	echo 'files not installed:'
-	echo *
-	echo 'install with "aur -d"'
-fi
-
 #download
-wget --no-check-certificate https://aur.archlinux.org/packages/${package:0:2}/${package}/${package}.tar.gz
+if [[ $download == true ]]; then
+	wget --no-check-certificate https://aur.archlinux.org/packages/${package:0:2}/${package}/${package}.tar.gz
 
-#unzip
-tar -xzf ${package}.tar.gz
-
-#enter directory
-cd ${package}
-
-#make package
-makepkg -s
-
-#check for README
-if [[ -e ~/.aur/${package}.pkg.tar.gz/READ* ]]; then
-	less READ*
-elif [[ -e ./src/READ* ]]; then
-	less src/READ*
+	#unzip
+	tar -xzf ${package}.tar.gz
 fi
 
-#install
-su -c "pacman -U ${force} ${package}*.pkg.tar.xz"
+if [[ $install == true ]]; then
+	#enter dir
+	cd ${package}
 
-#clean up
-cd ~
-rm -rf ~/.aur/${package}*
+	#open README
+	less $(find . -name 'READ*')
+
+	#package
+	makepkg -s
+	
+	if [[ $force == true ]]; then
+		#force install
+		su -c "pacman -U --force ${package}*.pkg.tar.xz"
+	else
+		#install
+		su -c "pacman -U ${package}*.pkg.tar.xz"
+	fi
+fi
+
+if [[ $delete == true ]]; then
+	#clean up
+	cd ~
+	rm -rf ~/.aur/${package}*
+fi
