@@ -3,8 +3,8 @@
 # RREAD ME
 # this file can be executed to place files in the correct places
 
-ln -s aur /usr/local/bin/
+cp aur /usr/local/bin/
 
-ln -s itav /usr/local/bin/
+cp itav /usr/local/bin/
 
-ln -s tmuxstat /usr/local/bin/
+cp tmuxstat /usr/local/bin/
