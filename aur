@@ -116,7 +116,23 @@ if [[ $install == true ]]; then
 fi
 
 if [[ $delete == true ]]; then
+	#confirm
+	packagesToDelete=$(ls --hide=*.*)
+	if [[ ! $packagesToDelete == $package ]]; then
+		echo
+		echo 'Delete files of following packages? y/N'
+		ls --hide=*.*
+		echo
+
+		read confirm
+
+		if [[ ! $confirm == y ]];then
+			exit
+		fi
+	fi
+
 	#clean up
 	cd ~
-	rm -rf ~/.aur/${package}*
+	rm -rf ~/.aur/*
+	echo 'files cleared'
 fi
