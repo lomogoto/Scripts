@@ -153,7 +153,7 @@ if len(sys.argv)>1:
         print(' I:              intensity toggle')
         print(' D:              debug message toggle')
         print(' W R Y G C B M:  change colors displayed')
-        print(' X,Q,V:          exit\n\n')
+        print(' X Q V:          exit\n\n')
         exit()
 
     #if not a flag use as initial file name
