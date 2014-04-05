@@ -2,6 +2,7 @@
 
 # RREAD ME
 # this file can be executed to place files in the correct places
+#
 
 cp aur /usr/local/bin/
 
