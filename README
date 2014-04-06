@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#
+# this file can be executed to place files in the correct places
+# add hash ('#') to lines to not install a script
+#
+
+#installer for arch user repo with install options to edit package before installing and display README before installing
+su -c "cp aur /usr/local/bin/"
+
+#image to acsii viewer can display many images as ascii art and is designed for use in elinks and similar text-based browsers
+su -c "cp itav /usr/local/bin/"
+
+#prints wireless network (requires network manager) and battery percent
+su -c "cp tmuxstat /usr/local/bin/"
+
+#quickly add commit and push a directory to github
+su -c "cp git-update /usr/local/bin/"
