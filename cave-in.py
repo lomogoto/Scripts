@@ -14,13 +14,13 @@ s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
 address=('',0)
 
-server = True
+server = False
 
 if raw_input('\nServer?(Y/n) ')!='n':
 	print "\nYour IP address:", yourIP
 	s.bind(('', port))
 	address=s.recvfrom(1024)[1]
-	server = False
+	server = True
 
 else:
 	address=(raw_input("\nOpponent's IP address: " ),port)
@@ -33,7 +33,7 @@ resourceNames=('@', 'o', '#', '%', '*', '&', '$')
 resources=    [ 0,   0,   0,   0,   0,   0,   0]
 itemNames=('Traps', 'Powder', 'Guns', 'Bombs', 'Runners', 'Gunners', 'Bombers', 'Towers', 'Farms', 'Walls', 'Bridges')
 items=    [ 0,       0,        0,      0,       0,         0,         0,         0,        0,       0,       0]
-pos=[9,23,15]
+pos=[9,22,14+31*server]
 menuPos=0
 running = True
 
@@ -45,9 +45,11 @@ def main(screen):
 	curses.init_pair(3-server,6,0)
 	curses.init_pair(4,7,7)
 	curses.init_pair(5,4,0)
+	curses.init_pair(6,0,6)
 
 	global running
 	global menuPos
+	global pos
 	if server:
 		makeMap()
 		sendMap(screen)
@@ -65,14 +67,40 @@ def main(screen):
 
 		if c==' ':
 			menu=not menu
+
 		elif c=='j':
 			if menu:
 				if menuPos<10:
 					menuPos+=1
+			elif pos[1]<44:
+				pos[1]+=1
+
 		elif c=='k':
 			if menu:
 				if menuPos>0:
 					menuPos-=1
+			elif pos[1]>0:
+				pos[1]-=1
+
+		elif c=='J':
+			if pos[0]>0:
+				pos[0]-=1
+
+		elif c=='K':
+			if pos[0]<9:
+				pos[0]+=1
+
+		elif c=='h':
+			if pos[2]>0:
+				pos[2]-=1
+
+		elif c=='l':
+			if pos[2]<59:
+				pos[2]+=1
+
+		elif c=='!':
+			pos=[9,22,14+31*server]
+
 		elif c=='q':
 			screen.addstr(0,0,'quit?(y/N)')
 			if chr(screen.getch())=='y':
@@ -109,6 +137,61 @@ def makeMap():
 				row.append(char)
 			level.append(row)
 		gameMap.append(level)
+	for i in range(4,56):
+		gameMap[9][22][i]=' '
+	for i in range(5,10):
+		gameMap[9][21][i]=' '
+		gameMap[9][23][i]=' '
+	for i in range(50,55):
+		gameMap[9][21][i]=' '
+		gameMap[9][23][i]=' '
+	gameMap[9][22][7]='!'
+	gameMap[9][22][52]='i'
+		
+	j=44
+	for i in range(22):
+		gameMap[9][21-i][j]=' '
+		if i%2==0:
+			j=j-1+randint(0,2)
+	j=44
+	for i in range(22):
+		gameMap[9][23+i][j]=' '
+		if i%2==0:
+			j=j-1+randint(0,2)
+	
+	j=15
+	for i in range(22):
+		j2=j
+		while gameMap[9][21-i][j2]!=' ':
+			gameMap[9][21-i][j2]=' '
+			j2+=1
+		if i%2==0:
+			j=j-1+randint(0,2)
+	j=15
+	for i in range(22):
+		j2=j
+		while gameMap[9][23+i][j2]!=' ':
+			gameMap[9][23+i][j2]=' '
+			j2+=1
+		if i%2==0:
+			j=j-1+randint(0,2)
+	
+	gameMap[9][22][29]='~'
+	gameMap[9][22][30]='~'
+
+	j=29
+	for i in range(22):
+		gameMap[9][23+i][j]='~'
+		gameMap[9][23+i][j+1]='~'
+		j=j-1+randint(0,2)
+	
+
+	j=29
+	for i in range(22):
+		gameMap[9][21-i][j]='~'
+		gameMap[9][21-i][j+1]='~'
+		j=j-1+randint(0,2)
+	
 
 def sendMap(screen):
 	screen.addstr(4,2,'Sending Map')
@@ -162,7 +245,12 @@ def printMap(screen):
 	else:
 		for i in range(5):
 			for j in range(7):
-				char=chr(gameMap[pos[0]+1][pos[1]-2+i][pos[2]-3+j])
+				char='/'
+				try:
+					if pos[1]-2+i>=0 and pos[2]-3+j>=0:
+						char=gameMap[pos[0]+1][pos[1]-2+i][pos[2]-3+j]
+				except:
+					pass
 				try:
 					displaychar=friends[enemies.index(char)]
 				except:
@@ -171,12 +259,17 @@ def printMap(screen):
 
 	if pos[0]==0:
 		for i in range(5):
-			screen.addstr(i+10,17,' '*7)
+			screen.addstr(i+10,17,'/'*7)
 		screen.addstr(12,17,'BEDROCK')
 	else:
 		for i in range(5):
 			for j in range(7):
-				char=gameMap[pos[0]-1][pos[1]-2+i][pos[2]-3+j]
+				char='/'
+				try:
+					if pos[1]-2+i>=0 and pos[2]-3+j>=0:
+						char=gameMap[pos[0]-1][pos[1]-2+i][pos[2]-3+j]
+				except:
+					pass
 				try:
 					displaychar=friends[enemies.index(char)]
 				except:
@@ -185,13 +278,23 @@ def printMap(screen):
 
 	for i in range(11):
 		for j in range(15):
-			char=gameMap[pos[0]][pos[1]-5+i][pos[2]-7+j]
+			char='/'
+			try:
+				if pos[1]-5+i>=0 and pos [2]-7+j>=0:
+					char=gameMap[pos[0]][pos[1]-5+i][pos[2]-7+j]
+			except:
+				pass
 			try:
 				displaychar=friends[enemies.index(char)]
 			except:
 				displaychar=char
-			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(1 + (enemies.find(char)!=-1) + 2*(friends.find(char)!=-1)+3*(char=='X')+4*(char=='~')))
+			if i==5 and j==7:
+				color=6
+			else:
+				color=1 + (enemies.find(char)!=-1) + 2*(friends.find(char)!=-1)+3*(char=='X')+4*(char=='~')
+			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
+	screen.addstr(21,0,str(pos))
 
 
 def displayNum(n):
