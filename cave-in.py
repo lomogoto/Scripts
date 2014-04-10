@@ -4,6 +4,7 @@ import socket
 import thread
 import curses
 import time
+from random import randint
 
 port = 4682
 
@@ -47,8 +48,11 @@ def main(screen):
 
 	global running
 	global menuPos
-
-	makeMap()
+	if server:
+		makeMap()
+		sendMap(screen)
+	else:
+		getMap(screen)
 	
 	menu=False
 
@@ -83,14 +87,47 @@ def makeMap():
 		for y in range(45):
 			row=[]
 			for x in range(60):
-				char='?'
+				char='o'
+				rand = randint(0,25-z)
+
+				if rand > 24:
+					char=resourceNames[6]
+				elif rand > 22:
+					char=resourceNames[5]
+				elif rand > 19:
+					char=resourceNames[4]
+				elif rand > 15:
+					char=resourceNames[3]
+				elif rand > 10:
+					char=resourceNames[2]
+				elif rand > 5:
+					char=resourceNames[1]
+				elif rand > 0:
+					if not randint(0,10) and z<5:
+						char = 'X'
+
 				row.append(char)
 			level.append(row)
 		gameMap.append(level)
-	gameMap[pos[0]-1][pos[1]-2][pos[2]]='f'
-	gameMap[pos[0]-1][pos[1]-1][pos[2]]='F'
-	gameMap[pos[0]-1][pos[1]][pos[2]]='X'
-	gameMap[pos[0]-1][pos[1]+1][pos[2]]='~'
+
+def sendMap(screen):
+	screen.addstr(4,2,'Sending Map')
+	for z in range(10):
+		for y in range(45):
+			s.sendto(str(gameMap[z][y]), address)
+			time.sleep(0.01)
+		screen.addstr(5,z+3,'#')
+		screen.refresh()
+
+def getMap(screen):
+	screen.addstr(4,2,'Getting Map')
+	for z in range(10):
+		level=[]
+		for y in range(45):
+			level.append(eval(s.recvfrom(2048)[0]))
+		gameMap.append(level)
+		screen.addstr(5,z+3,'#')
+		screen.refresh()
 
 def printMap(screen):
 
@@ -125,7 +162,7 @@ def printMap(screen):
 	else:
 		for i in range(5):
 			for j in range(7):
-				char=gameMap[pos[0]+1][pos[1]-2+i][pos[2]-3+j]
+				char=chr(gameMap[pos[0]+1][pos[1]-2+i][pos[2]-3+j])
 				try:
 					displaychar=friends[enemies.index(char)]
 				except:
