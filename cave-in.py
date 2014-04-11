@@ -24,6 +24,12 @@ if raw_input('\nServer?(Y/n) ')!='n':
 
 else:
 	address=(raw_input("\nOpponent's IP address: " ),port)
+	print address
+	if address[0].find('.')==-1:
+		if address[0]=='':
+			address=('127.0.0.1',address[1])
+		else:
+			address=('192.168.0.'+address[0], address[1])
 	s.sendto('connected', address)
 
 #### #### #### #### ####
@@ -249,6 +255,8 @@ def printMap(screen):
 				try:
 					if pos[1]-2+i>=0 and pos[2]-3+j>=0:
 						char=gameMap[pos[0]+1][pos[1]-2+i][pos[2]-3+j]
+						if not visible(pos[0]+1,pos[1]-2+i,pos[2]-3+j):
+							char='.'
 				except:
 					pass
 				try:
@@ -268,6 +276,8 @@ def printMap(screen):
 				try:
 					if pos[1]-2+i>=0 and pos[2]-3+j>=0:
 						char=gameMap[pos[0]-1][pos[1]-2+i][pos[2]-3+j]
+						if not visible(pos[0]-1,pos[1]-2+i,pos[2]-3+j):
+							char='.'
 				except:
 					pass
 				try:
@@ -282,6 +292,8 @@ def printMap(screen):
 			try:
 				if pos[1]-5+i>=0 and pos [2]-7+j>=0:
 					char=gameMap[pos[0]][pos[1]-5+i][pos[2]-7+j]
+					if not visible(pos[0],pos[1]-5+i,pos[2]-7+j):
+						char='.'
 			except:
 				pass
 			try:
@@ -295,7 +307,23 @@ def printMap(screen):
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
 	screen.addstr(21,0,str(pos))
-
+def visible(z,y,x):
+	clear='FGSBT_fgsbt-!i@~ Z'
+	if clear.find(gameMap[z][y][x])!=-1:
+		return 1
+	if z!=0 and clear.find(gameMap[z-1][y][x])!=-1:
+		return 1
+	if z!=9 and clear.find(gameMap[z+1][y][x])!=-1:
+		return 1
+	if y!=0 and clear.find(gameMap[z][y-1][x])!=-1:
+		return 1
+	if y!=44 and clear.find(gameMap[z][y+1][x])!=-1:
+		return 1
+	if x!=0 and clear.find(gameMap[z][y][x-1])!=-1:
+		return 1
+	if x!=59 and clear.find(gameMap[z][y][x+1])!=-1:
+		return 1
+	return 0
 
 def displayNum(n):
 	if n<10:
