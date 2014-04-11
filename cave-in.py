@@ -43,6 +43,12 @@ pos=[9,22,14+31*server]
 menuPos=0
 running = True
 
+
+enemies='fgsbt-i'
+friends='FGSBT_!'
+clear=enemies+friends+'@~ Z'
+
+
 def main(screen):
 
 	curses.curs_set(0)
@@ -219,10 +225,6 @@ def getMap(screen):
 		screen.refresh()
 
 def printMap(screen):
-
-	enemies='fgsbt-i'
-	friends='FGSBT_!'
-
 	screen.addstr(0,18,'Cave  In')
 	screen.addstr(menuPos+3,26,' ')
 	screen.addstr(menuPos+4,26,'>')
@@ -308,7 +310,6 @@ def printMap(screen):
 
 	screen.addstr(21,0,str(pos))
 def visible(z,y,x):
-	clear='FGSBT_fgsbt-!i@~ Z'
 	if clear.find(gameMap[z][y][x])!=-1:
 		return 1
 	if z!=0 and clear.find(gameMap[z-1][y][x])!=-1:
