@@ -75,7 +75,7 @@ def main(scr):
 		getMap()
 		#caveIn()
 	
-	#harvest()
+	thread.start_new_thread(harvest,())
 	thread.start_new_thread(getUpdates,())
 	
 	menu=False
@@ -181,6 +181,15 @@ def update(s, send=False):
 
 	if send:
 		sock.sendto(s ,address)
+
+def harvest():
+	while running:
+		time.sleep(randint(10,15))
+		for y in range(0,45):
+			for x in range(0,60):
+				if gameMap[9][y][x]==('f'*server + 'F'*(not server)):
+					resources[0]+=1
+		printMap()
 
 def addAnimals():
 	while running:
