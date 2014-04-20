@@ -123,6 +123,32 @@ def main(scr):
 		elif c=='!':
 			pos=[9,22,14+31*server]
 
+		elif c=='b':
+			canBuy=True
+			if canBuy:
+				items[menuPos]+=1
+
+		elif c=='p':
+			canPlace=(menuPos==0 or menuPos>3)
+			if canPlace and items[menuPos]>0:
+				items[menuPos]-=1
+				char=' '
+				if menuPos==0:
+					char='-'*server+'_'*(not server)
+				elif menuPos==4:
+					char='r'*server+'R'*(not server)
+				elif menuPos==5:
+					char='g'*server+'G'*(not server)
+				elif menuPos==6:
+					char='b'*server+'B'*(not server)
+				elif menuPos==7:
+					char='t'*server+'T'*(not server)
+				elif menuPos==8:
+					char='f'*server+'F'*(not server)
+				elif menuPos==9:
+					char='X'
+				update(formatUpdate(pos[0],pos[1],pos[2],char),True)
+
 		elif c=='q':
 			screen.addstr(0,0,'quit?(y/N)')
 			if chr(screen.getch())=='y':
@@ -166,7 +192,10 @@ def addAnimals():
 		while gameMap[9][y][x]!=' ':
 			y=randint(0,44)
 			x=randint(0,59)
-		update('9'+'0'*(y<10)+str(y)+'0'*(x<10)+str(x)+'@', True)
+		update(formatUpdate(9,y,x,'@'), True)
+
+def formatUpdate(z,y,x,c):
+	return str(z)+'0'*(y<10)+str(y)+'0'*(x<10)+str(x)+c
 
 def makeMap():
 	global gameMap
