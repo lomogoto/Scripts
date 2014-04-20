@@ -10,7 +10,7 @@ port = 4682
 
 yourIP = socket.gethostbyname(socket.gethostname())
 
-s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+sock=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
 address=('',0)
 
@@ -18,21 +18,23 @@ server = False
 
 if raw_input('\nServer?(Y/n) ')!='n':
 	print "\nYour IP address:", yourIP
-	s.bind(('', port))
-	address=s.recvfrom(1024)[1]
+	sock.bind(('', port))
+	address=sock.recvfrom(1024)[1]
 	server = True
 
 else:
 	address=(raw_input("\nOpponent's IP address: " ),port)
-	print address
+	#print address
 	if address[0].find('.')==-1:
 		if address[0]=='':
 			address=('127.0.0.1',address[1])
 		else:
 			address=('192.168.0.'+address[0], address[1])
-	s.sendto('connected', address)
+	sock.sendto('connected', address)
 
 #### #### #### #### ####
+
+screen=None
 
 gameMap=[]
 resourceNames=('@', 'o', '#', '%', '*', '&', '$')
@@ -49,7 +51,9 @@ friends='FGSBT_!'
 clear=enemies+friends+'@~ Z'
 
 
-def main(screen):
+def main(scr):
+	global screen
+	screen=scr
 
 	curses.curs_set(0)
 	curses.init_pair(1,7,0)
@@ -64,14 +68,20 @@ def main(screen):
 	global pos
 	if server:
 		makeMap()
-		sendMap(screen)
+		sendMap()
+		thread.start_new_thread(addAnimals,())
+		#checkConflicts()
 	else:
-		getMap(screen)
+		getMap()
+		#caveIn()
+	
+	#harvest()
+	thread.start_new_thread(getUpdates,())
 	
 	menu=False
 
 	while running:
-		printMap(screen)
+		printMap()
 		try:
 			c=chr(screen.getch())
 		except:
@@ -117,8 +127,46 @@ def main(screen):
 			screen.addstr(0,0,'quit?(y/N)')
 			if chr(screen.getch())=='y':
 				running=False
+				sock.sendto('quit', address)
 			else:
 				screen.addstr(0,0,' '*10)
+
+def getUpdates():
+	global running
+	while running:
+		text=sock.recvfrom(1024)[0]
+		if text!='quit':
+			update(text)
+		else:
+			running=False
+			screen.addstr(0,0,'GAME QUIT')
+			screen.refresh()
+
+def update(s, send=False):
+	try:
+		z=int(s[0])
+		y=int(s[1:3])
+		x=int(s[3:5])
+		c=s[5]
+	except:
+		pass
+	gameMap[z][y][x]=c
+	printMap()
+
+	if send:
+		sock.sendto(s ,address)
+
+def addAnimals():
+	while running:
+		time.sleep(randint(10,20))
+		
+		y=randint(0,44)
+		x=randint(0,59)
+		
+		while gameMap[9][y][x]!=' ':
+			y=randint(0,44)
+			x=randint(0,59)
+		update('9'+'0'*(y<10)+str(y)+'0'*(x<10)+str(x)+'@', True)
 
 def makeMap():
 	global gameMap
@@ -205,26 +253,26 @@ def makeMap():
 		j=j-1+randint(0,2)
 	
 
-def sendMap(screen):
+def sendMap():
 	screen.addstr(4,2,'Sending Map')
 	for z in range(10):
 		for y in range(45):
-			s.sendto(str(gameMap[z][y]), address)
+			sock.sendto(str(gameMap[z][y]), address)
 			time.sleep(0.01)
 		screen.addstr(5,z+3,'#')
 		screen.refresh()
 
-def getMap(screen):
+def getMap():
 	screen.addstr(4,2,'Getting Map')
 	for z in range(10):
 		level=[]
 		for y in range(45):
-			level.append(eval(s.recvfrom(2048)[0]))
+			level.append(eval(sock.recvfrom(2048)[0]))
 		gameMap.append(level)
 		screen.addstr(5,z+3,'#')
 		screen.refresh()
 
-def printMap(screen):
+def printMap():
 	screen.addstr(0,18,'Cave  In')
 	screen.addstr(menuPos+3,26,' ')
 	screen.addstr(menuPos+4,26,'>')
@@ -309,6 +357,8 @@ def printMap(screen):
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
 	screen.addstr(21,0,str(pos))
+	screen.refresh()
+
 def visible(z,y,x):
 	if clear.find(gameMap[z][y][x])!=-1:
 		return 1
@@ -333,4 +383,4 @@ def displayNum(n):
 		return str(n)
 
 curses.wrapper(main)
-s.close()
+sock.close()
