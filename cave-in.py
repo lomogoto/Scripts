@@ -4,7 +4,33 @@ import socket
 import thread
 import curses
 import time
+from os import getenv
 from random import randint
+
+leftKey='h'
+rightKey='l'
+upKey='k'
+downKey='j'
+digKey='J'
+climbKey='K'
+menuToggleKey=' '
+mineKey='m'
+buyKey='b'
+placeKey='p'
+homeKey='!'
+quitKey='q'
+
+try:
+	with open(getenv('HOME')+'/.cave-in','r') as configFile:
+		for line in configFile:
+			try:
+				exec(line)
+			except:
+				print('\nError found in configuration:')
+				print(line)
+	print('\nConfiguration Complete')
+except:
+	print('\nNo Configuration Found\nUsing default settings')
 
 port = 4682
 
@@ -70,10 +96,8 @@ def main(scr):
 		makeMap()
 		sendMap()
 		thread.start_new_thread(addAnimals,())
-		#checkConflicts()
 	else:
 		getMap()
-		#caveIn()
 	
 	thread.start_new_thread(harvest,())
 	thread.start_new_thread(getUpdates,())
@@ -87,48 +111,48 @@ def main(scr):
 		except:
 			c=0
 
-		if c==' ':
+		if c==menuToggleKey:
 			menu=not menu
 
-		elif c=='j':
+		elif c==downKey:
 			if menu:
 				if menuPos<10:
 					menuPos+=1
 			elif pos[1]<44:
 				pos[1]+=1
 
-		elif c=='k':
+		elif c==upKey:
 			if menu:
 				if menuPos>0:
 					menuPos-=1
 			elif pos[1]>0:
 				pos[1]-=1
 
-		elif c=='J':
+		elif c==digKey:
 			if pos[0]>0:
 				pos[0]-=1
 
-		elif c=='K':
+		elif c==climbKey:
 			if pos[0]<9:
 				pos[0]+=1
 
-		elif c=='h':
+		elif c==leftKey:
 			if pos[2]>0:
 				pos[2]-=1
 
-		elif c=='l':
+		elif c==rightKey:
 			if pos[2]<59:
 				pos[2]+=1
 
-		elif c=='!':
-			pos=[9,22,14+31*server]
+		elif c==homeKey:
+			pos=[9,22,7+45*server]
 
-		elif c=='b':
+		elif c==buyKey:
 			canBuy=True
 			if canBuy:
 				items[menuPos]+=1
 
-		elif c=='p':
+		elif c==placeKey:
 			canPlace=(menuPos==0 or menuPos>3)
 			if canPlace and items[menuPos]>0:
 				items[menuPos]-=1
@@ -147,9 +171,9 @@ def main(scr):
 					char='f'*server+'F'*(not server)
 				elif menuPos==9:
 					char='X'
-				update(formatUpdate(pos[0],pos[1],pos[2],char),True)
+				update(formatUpdate(pos[0],pos[1],pos[2],char))
 
-		elif c=='q':
+		elif c==quitKey:
 			screen.addstr(0,0,'quit?(y/N)')
 			if chr(screen.getch())=='y':
 				running=False
@@ -162,13 +186,13 @@ def getUpdates():
 	while running:
 		text=sock.recvfrom(1024)[0]
 		if text!='quit':
-			update(text)
+			update(text, False)
 		else:
 			running=False
 			screen.addstr(0,0,'GAME QUIT')
 			screen.refresh()
 
-def update(s, send=False):
+def update(s, send=True):
 	try:
 		z=int(s[0])
 		y=int(s[1:3])
@@ -181,6 +205,11 @@ def update(s, send=False):
 
 	if send:
 		sock.sendto(s ,address)
+
+	if server:
+		pass #thread.start_new_thread(checkConflicts,())
+	else:
+		pass #thread.start_new_thread(checkCaveIns,())
 
 def harvest():
 	while running:
@@ -201,10 +230,38 @@ def addAnimals():
 		while gameMap[9][y][x]!=' ':
 			y=randint(0,44)
 			x=randint(0,59)
-		update(formatUpdate(9,y,x,'@'), True)
+		update(formatUpdate(9,y,x,'@'))
 
 def formatUpdate(z,y,x,c):
 	return str(z)+'0'*(y<10)+str(y)+'0'*(x<10)+str(x)+c
+
+def checkCaveIns():
+	toFill=[]
+	for z in range(0,9):
+		for y in range(0,44):
+			for x in range(0,59):
+				wontCave='o#%&*$'
+				willCave=(z!=9)
+				for i in range(-2,3):
+					for j in range(-2,3):
+						if wontCave.find(gameMap[z][y+j][x+i])==-1:
+							willCave==False
+				if willCave:
+					for i in range(-2,3):
+						for j in range(-2,3):
+							toFill.append((z,y+j,x+i))
+
+	for place in toFill:
+		z,y,x=place
+		char='o'
+		rand = randint(0,24)
+		if rand==0:
+			rand=randint(0,2)
+			char=wontCave[2+rand]
+		else:
+			rand=randint(0,1)
+			char=wontCave[rand]
+		gameMap[z][y+j][x+i]=char
 
 def makeMap():
 	global gameMap
