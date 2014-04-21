@@ -26,11 +26,10 @@ try:
 			try:
 				exec(line)
 			except:
-				print('\nError found in configuration:')
-				print(line)
+				print '\nERROR FOUND. Skipping line:', line.strip('\n')
 	print('\nConfiguration Complete')
 except:
-	print('\nNo Configuration Found\nUsing default settings')
+	pass #print('\nNo Configuration Found\nUsing default settings')
 
 port = 4682
 
@@ -171,6 +170,10 @@ def main(scr):
 					char='f'*server+'F'*(not server)
 				elif menuPos==9:
 					char='X'
+				elif menuPos==10:
+					update(formatUpdate(pos[0],pos[1],pos[2]+1-2*server,char))
+					update(formatUpdate(pos[0],pos[1],pos[2]+2-4*server,char))
+					
 				update(formatUpdate(pos[0],pos[1],pos[2],char))
 
 		elif c==quitKey:
