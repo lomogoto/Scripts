@@ -54,7 +54,11 @@ else:
 		if address[0]=='':
 			address=('127.0.0.1',address[1])
 		else:
-			address=('192.168.0.'+address[0], address[1])
+			try:
+				int(address[0])
+				address=('192.168.0.'+address[0], address[1])
+			except:
+				address=(eval(address[0]),address[1])
 	sock.sendto('connected', address)
 
 #### #### #### #### ####
