@@ -6,6 +6,41 @@ import curses
 import time
 from os import getenv
 from random import randint
+from sys import argv
+
+def gameHelp():
+	print '\nCave In Help Page\n'
+	print 'Configuration file: ~/.cave-in'
+	print 'Variables:'
+	print '  leftKey'
+	print '  rightKey'
+	print '  upKey'
+	print '  downKey'
+	print '  digKey'
+	print '  climbKey'
+	print '  menuToggleKey'
+	print '  mineKey'
+	print '  buyKey'
+	print '  placeKey'
+	print '  homeKey'
+	print '  quitKey'
+	print '  loadTime'
+	print 'Examples:'
+	print '  Copy into dot file to use WASD control:'
+	print "    leftKey='a'"
+	print "    rightKey='d'"
+	print "    upKey='w'"
+	print "    downKey='s'"
+	print '  Add to set load time to 3 seconds:'
+	print '    loadTime=3'
+
+	exit()
+
+for arg in argv:
+	if arg[0]=='-' and len(arg)>1:
+		for flag in arg[1:]:
+			if flag=='h':
+				gameHelp()
 
 leftKey='h'
 rightKey='l'
