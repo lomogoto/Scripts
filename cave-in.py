@@ -20,6 +20,8 @@ placeKey='p'
 homeKey='!'
 quitKey='q'
 
+loadTime=5
+
 try:
 	with open(getenv('HOME')+'/.cave-in','r') as configFile:
 		for line in configFile:
@@ -360,7 +362,7 @@ def sendMap():
 	for z in range(10):
 		for y in range(45):
 			sock.sendto(str(gameMap[z][y]), address)
-			time.sleep(0.01)
+			time.sleep(loadTime/450.0)
 		screen.addstr(5,z+3,'#')
 		screen.refresh()
 
