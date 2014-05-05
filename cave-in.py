@@ -112,19 +112,23 @@ menuPos=0
 running = True
 
 
-enemies='fgsbt-i'
-friends='FGSBT_!'
+enemies='fgrbt-i'
+friends='FGRBT_!'
+if server:
+	swap=enemies
+	enemies=friends
+	friends=swap
 clear=enemies+friends+'@~ Z'
-
+solid='o#%*&$X~'
+canMine='o#%*&$'
 
 def main(scr):
 	global screen
 	screen=scr
-
 	curses.curs_set(0)
 	curses.init_pair(1,7,0)
-	curses.init_pair(2+server,1,0)
-	curses.init_pair(3-server,6,0)
+	curses.init_pair(2,1,0)
+	curses.init_pair(3,6,0)
 	curses.init_pair(4,7,7)
 	curses.init_pair(5,4,0)
 	curses.init_pair(6,0,6)
@@ -141,8 +145,9 @@ def main(scr):
 	
 	thread.start_new_thread(harvest,())
 	thread.start_new_thread(getUpdates,())
-	
+
 	menu=False
+	mine=False
 
 	while running:
 		printMap()
@@ -153,36 +158,35 @@ def main(scr):
 
 		if c==menuToggleKey:
 			menu=not menu
+		
+		elif c==mineKey:
+			mine=not mine
 
 		elif c==downKey:
 			if menu:
 				if menuPos<10:
 					menuPos+=1
-			elif pos[1]<44:
-				pos[1]+=1
-
+			else:
+				tryMove((0,1,0), mine)
+		
 		elif c==upKey:
 			if menu:
 				if menuPos>0:
 					menuPos-=1
-			elif pos[1]>0:
-				pos[1]-=1
+			else:
+				tryMove((0,-1,0), mine)
 
 		elif c==digKey:
-			if pos[0]>0:
-				pos[0]-=1
+			tryMove((-1,0,0), mine)
 
 		elif c==climbKey:
-			if pos[0]<9:
-				pos[0]+=1
+			tryMove((1,0,0), mine)
 
 		elif c==leftKey:
-			if pos[2]>0:
-				pos[2]-=1
+			tryMove((0,0,-1), mine)
 
 		elif c==rightKey:
-			if pos[2]<59:
-				pos[2]+=1
+			tryMove((0,0,1), mine)
 
 		elif c==homeKey:
 			pos=[9,22,7+45*server]
@@ -224,6 +228,69 @@ def main(scr):
 				sock.sendto('quit', address)
 			else:
 				screen.addstr(0,0,' '*10)
+
+def tryMove(direction, mining=False):
+	priceUpDown=3
+	global pos
+	newpos=(pos[0]+direction[0], pos[1]+direction[1], pos[2]+direction[2])
+	if newpos[0]>=0 and newpos[0]<10 and newpos[1]>=0 and newpos[1]<45 and newpos[2]>=0 and newpos[2]<60:
+		char=gameMap[newpos[0]][newpos[1]][newpos[2]]
+		isSolid=solid.find(char)!=-1
+		isUpDown=direction[0]!=0
+		if isUpDown and (char!='Z' and gameMap[pos[0]][pos[1]][pos[2]]!='Z'):
+			isSolid=True
+		if mining and (canMine.find(char)!=-1 or (char==' ' and isUpDown)):
+			if isUpDown:
+				if resources[0]+resources[6]>=priceUpDown:
+					resources[0]-=priceUpDown
+					if resources[0]<0:
+						resources[6]+=resources[0]
+						resources[0]=0
+					update(formatUpdate(pos[0],pos[1],pos[2],'Z'))
+					update(formatUpdate(newpos[0],newpos[1],newpos[2],'Z'))
+				else:
+					mining=False
+			else:
+				if resources[0]+resources[6]>=1:
+					resources[0]-=1
+					if resources[0]<0:
+						resources[6]+=resources[0]
+						resources[0]=0
+					resources[resourceNames.index(char)]+=1
+					update(formatUpdate(newpos[0],newpos[1],newpos[2],' '))
+				else:
+					mining=False
+		else:
+			mining=False
+
+		if char=='@':
+			resources[0]+=1
+			update(formatUpdate(newpos[0],newpos[1],newpos[2],' '))
+
+		if mining or not isSolid:
+			if not inRange(newpos):
+				pos=newpos
+
+def inRange(pos):
+	for i in range(3):
+		try:
+			if enemies.find(gameMap[pos[0]][pos[1]-1+i][pos[2]-2])!=-1:
+				return True
+		except:
+			pass
+		try:
+			if enemies.find(gameMap[pos[0]][pos[1]-1+i][pos[2]+3])!=-1:
+				return True
+		except:
+			pass
+	for i in range(5):
+		for j in range(3):
+			try:
+				if enemies.find(gameMap[pos[0]][pos[1]-2+i][pos[2]-1+j])!=-1:
+					return True
+			except:
+				pass
+	return False
 
 def getUpdates():
 	global running
@@ -412,6 +479,12 @@ def getMap():
 		screen.refresh()
 
 def printMap():
+	for i in range(len(resources)):
+		if resources[i]>99:
+			resources[i]=99
+	for i in range(len(items)):
+		if items[i]>99:
+			items[i]=99
 	screen.addstr(0,18,'Cave  In')
 	screen.addstr(menuPos+3,26,' ')
 	screen.addstr(menuPos+4,26,'>')
@@ -448,11 +521,19 @@ def printMap():
 							char='.'
 				except:
 					pass
-				try:
-					displaychar=friends[enemies.index(char)]
-				except:
-					displaychar=char
-				screen.addstr(i+4, 17+j ,displaychar ,curses.color_pair(1 + (enemies.find(char)!=-1) + 2*(friends.find(char)!=-1)+3*(char=='X')+4*(char=='~')))
+				displaychar=char
+				if friends<enemies:
+					try:
+						displaychar=friends[enemies.index(char)]
+					except:
+						pass
+				else:
+					try:
+						displaychar=enemies[friends.index(char)]
+					except:
+						pass
+						
+				screen.addstr(i+4, 17+j ,displaychar ,curses.color_pair(2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~')))
 
 	if pos[0]==0:
 		for i in range(5):
@@ -469,11 +550,19 @@ def printMap():
 							char='.'
 				except:
 					pass
-				try:
-					displaychar=friends[enemies.index(char)]
-				except:
-					displaychar=char
-				screen.addstr(i+10, 17+j ,displaychar ,curses.color_pair(1 + (enemies.find(char)!=-1) + 2*(friends.find(char)!=-1)+3*(char=='X')+4*(char=='~')))
+				displaychar=char
+				if friends<enemies:
+					try:
+						displaychar=friends[enemies.index(char)]
+					except:
+						pass
+				else:
+					try:
+						displaychar=enemies[friends.index(char)]
+					except:
+						pass
+
+				screen.addstr(i+10, 17+j ,displaychar ,curses.color_pair(2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~')))
 
 	for i in range(11):
 		for j in range(15):
@@ -485,17 +574,24 @@ def printMap():
 						char='.'
 			except:
 				pass
-			try:
-				displaychar=friends[enemies.index(char)]
-			except:
-				displaychar=char
+			displaychar=char
+			if friends<enemies:
+				try:
+					displaychar=friends[enemies.index(char)]
+				except:
+					pass
+			else:
+				try:
+					displaychar=enemies[friends.index(char)]
+				except:
+					pass
 			if i==5 and j==7:
 				color=6
 			else:
-				color=1 + (enemies.find(char)!=-1) + 2*(friends.find(char)!=-1)+3*(char=='X')+4*(char=='~')
+				color=2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~')
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
-	screen.addstr(21,0,str(pos))
+	screen.addstr(21,0,str(enemies + ' ' + friends))
 	screen.refresh()
 
 def visible(z,y,x):
