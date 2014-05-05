@@ -15,7 +15,7 @@ su -c "cp itav /usr/local/bin/"
 su -c "cp tmuxstat /usr/local/bin/"
 
 #quickly add commit and push a directory to github
-su -c "cp git-update /usr/local/bin/"
+su -c "cp gitup /usr/local/bin/"
 
 #LAN subterranean real-time strategy game 
 #su -c "cp cave-in.py /usr/local/bin/cave-in"
