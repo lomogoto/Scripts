@@ -121,6 +121,8 @@ if server:
 clear=enemies+friends+'@~ Z'
 solid='o#%*&$X~'
 canMine='o#%*&$'
+support='o#%*&$X'
+canNotMove='!iZ'
 
 def main(scr):
 	global screen
@@ -132,6 +134,7 @@ def main(scr):
 	curses.init_pair(4,7,7)
 	curses.init_pair(5,4,0)
 	curses.init_pair(6,0,6)
+	curses.init_pair(7,3,0)
 
 	global running
 	global menuPos
@@ -142,6 +145,7 @@ def main(scr):
 		thread.start_new_thread(addAnimals,())
 	else:
 		getMap()
+		thread.start_new_thread(caveIn,())
 	
 	thread.start_new_thread(harvest,())
 	thread.start_new_thread(getUpdates,())
@@ -164,11 +168,11 @@ def main(scr):
 			if not mine:
 				mine=True
 				moveChar=gameMap[pos[0]][pos[1]][pos[2]]
-				if '!'.find(moveChar)!=-1:
+				if canNotMove.find(moveChar)!=-1:
 					moveChar=' '
 				else:
 					update(formatUpdate(pos[0],pos[1],pos[2], ' '))
-			elif '!'.find(gameMap[pos[0]][pos[1]][pos[2]])==-1:
+			elif canNotMove.find(gameMap[pos[0]][pos[1]][pos[2]])==-1:
 				mine=False
 				update(formatUpdate(pos[0],pos[1],pos[2], moveChar))
 
@@ -205,7 +209,6 @@ def main(scr):
 			canBuy=True
 			if canBuy:
 				items[menuPos]+=1
-
 		elif c==placeKey:
 			canPlace=(menuPos==0 or menuPos>3)
 			if canPlace and items[menuPos]>0:
@@ -237,6 +240,33 @@ def main(scr):
 				running=False
 			else:
 				screen.addstr(0,0,' '*10)
+
+		elif c=='E':
+			return Exception('Testing Exception')
+
+def caveIn():
+	while running:
+		for z in range(9):
+			for y in range(45):
+				for x in range(60):
+					willCave=True
+					for i in range(5):
+						for j in range(5):
+							try:
+								char=gameMap[z][y-2+i][x-2+j]
+							except:
+								char='o'
+							if support.find(char)!=-1:
+								willCave=False
+					if willCave:
+						for i in range(5):
+							for j in range(5):
+								if y+i-2<45 and y+i-2>=0 and x+j-2<60 and x+j-2>=0:
+									update(formatUpdate(z,y-2+i,x-2+j,'o'))
+									time.sleep(0.1)
+						update(formatUpdate(z,y,x,'$'))
+						
+					
 
 def tryMove(direction, mining=False):
 	priceUpDown=3
@@ -542,7 +572,7 @@ def printMap():
 					except:
 						pass
 						
-				screen.addstr(i+4, 17+j ,displaychar ,curses.color_pair(2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~')))
+				screen.addstr(i+4, 17+j ,displaychar ,curses.color_pair(2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)))
 
 	if pos[0]==0:
 		for i in range(5):
@@ -571,7 +601,7 @@ def printMap():
 					except:
 						pass
 
-				screen.addstr(i+10, 17+j ,displaychar ,curses.color_pair(2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~')))
+				screen.addstr(i+10, 17+j ,displaychar ,curses.color_pair(2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)))
 
 	for i in range(11):
 		for j in range(15):
@@ -597,7 +627,7 @@ def printMap():
 			if i==5 and j==7:
 				color=6
 			else:
-				color=2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~')
+				color=2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
 	#screen.addstr(21,0,str(enemies + ' ' + friends))
