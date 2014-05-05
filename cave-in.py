@@ -149,6 +149,7 @@ def main(scr):
 	menu=False
 	mine=False
 
+	moveChar=' '
 	while running:
 		printMap()
 		try:
@@ -160,7 +161,16 @@ def main(scr):
 			menu=not menu
 		
 		elif c==mineKey:
-			mine=not mine
+			if not mine:
+				mine=True
+				moveChar=gameMap[pos[0]][pos[1]][pos[2]]
+				if '!'.find(moveChar)!=-1:
+					moveChar=' '
+				else:
+					update(formatUpdate(pos[0],pos[1],pos[2], ' '))
+			elif '!'.find(gameMap[pos[0]][pos[1]][pos[2]])==-1:
+				mine=False
+				update(formatUpdate(pos[0],pos[1],pos[2], moveChar))
 
 		elif c==downKey:
 			if menu:
@@ -223,9 +233,8 @@ def main(scr):
 
 		elif c==quitKey:
 			screen.addstr(0,0,'quit?(y/N)')
-			if chr(screen.getch())=='y':
+			if running and chr(screen.getch())=='y':
 				running=False
-				sock.sendto('quit', address)
 			else:
 				screen.addstr(0,0,' '*10)
 
@@ -591,7 +600,7 @@ def printMap():
 				color=2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~')
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
-	screen.addstr(21,0,str(enemies + ' ' + friends))
+	#screen.addstr(21,0,str(enemies + ' ' + friends))
 	screen.refresh()
 
 def visible(z,y,x):
@@ -618,4 +627,6 @@ def displayNum(n):
 		return str(n)
 
 curses.wrapper(main)
+
+sock.sendto('quit', address)
 sock.close()
