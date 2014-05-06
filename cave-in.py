@@ -318,7 +318,7 @@ def inRange(pos):
 		except:
 			pass
 		try:
-			if enemies.find(gameMap[pos[0]][pos[1]-1+i][pos[2]+3])!=-1:
+			if enemies.find(gameMap[pos[0]][pos[1]-1+i][pos[2]+2])!=-1:
 				return True
 		except:
 			pass
