@@ -27,10 +27,12 @@ for (( i=0; i<${#args[@]}; i++)); do
 			package=${args[i+1]}
 		fi
 
+		#force install
 		if [[ $arg == *f* ]]; then
 			force=true
 		fi
 
+		#clean directory
 		if [[ $arg == *c* ]]; then
 			delete=true
 		fi
