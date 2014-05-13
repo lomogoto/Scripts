@@ -237,10 +237,21 @@ def main(scr):
 
 		elif c==quitKey:
 			screen.addstr(0,0,'quit?(y/N)')
-			if running and chr(screen.getch())=='y':
+			c=chr(screen.getch())
+			if running and c=='y':
 				running=False
-			else:
-				screen.addstr(0,0,' '*10)
+			elif c==':':
+				good=True
+				for letter in upKey*2+downKey*2+leftKey+rightKey+leftKey+rightKey+'ba':
+					if good:
+						good=chr(screen.getch())==letter
+					else:
+						break
+				if good:
+					global resources
+					resources=[99,99,99,99,99,99,99]
+			screen.addstr(0,0,' '*10)
+				
 
 		elif c=='E':
 			return Exception('Testing Exception')
