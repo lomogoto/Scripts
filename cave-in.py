@@ -143,9 +143,10 @@ def main(scr):
 		makeMap()
 		sendMap()
 		thread.start_new_thread(addAnimals,())
+		thread.start_new_thread(caveIn,())
 	else:
 		getMap()
-		thread.start_new_thread(caveIn,())
+		thread.start_new_thread(fixConflicts,())
 	
 	thread.start_new_thread(harvest,())
 	thread.start_new_thread(getUpdates,())
@@ -171,10 +172,10 @@ def main(scr):
 				if canNotMove.find(moveChar)!=-1:
 					moveChar=' '
 				else:
-					update(formatUpdate(pos[0],pos[1],pos[2], ' '))
+					formatUpdate(pos[0],pos[1],pos[2], ' ')
 			elif canNotMove.find(gameMap[pos[0]][pos[1]][pos[2]])==-1:
 				mine=False
-				update(formatUpdate(pos[0],pos[1],pos[2], moveChar))
+				formatUpdate(pos[0],pos[1],pos[2], moveChar)
 
 		elif c==downKey:
 			if menu:
@@ -229,10 +230,10 @@ def main(scr):
 				elif menuPos==9:
 					char='X'
 				elif menuPos==10:
-					update(formatUpdate(pos[0],pos[1],pos[2]+1-2*server,char))
-					update(formatUpdate(pos[0],pos[1],pos[2]+2-4*server,char))
+					formatUpdate(pos[0],pos[1],pos[2]+1-2*server,char)
+					formatUpdate(pos[0],pos[1],pos[2]+2-4*server,char)
 					
-				update(formatUpdate(pos[0],pos[1],pos[2],char))
+				formatUpdate(pos[0],pos[1],pos[2],char)
 
 		elif c==quitKey:
 			screen.addstr(0,0,'quit?(y/N)')
@@ -244,29 +245,86 @@ def main(scr):
 		elif c=='E':
 			return Exception('Testing Exception')
 
-def caveIn():
+def fixConflicts():
 	while running:
-		for z in range(9):
+		conflictList=[]
+		for z in range(10):
 			for y in range(45):
 				for x in range(60):
-					willCave=True
+					char=gameMap[z][y][x]
+					if friends.find(char)!=-1:
+					 	for i in range(7):
+							for j in range(7):
+								eChar=gameMap[z][y-3+i][x-3+j]
+								if enemies.find(eChar)!=-1:
+									conflictList.append(((z,y,x),(z,y-3+i,x-3+j)))
+		for conflict in conflictList:
+			fPos=conflict[0]
+			ePos=conflict[1]
+			fChar=gameMap[fPos[0]][fPos[1]][fPos[2]]
+			eChar=gameMap[ePos[0]][ePos[1]][ePos[2]]
+			if friends.find(fChar)!=-1 and enemies.find(eChar)!=-1:
+				order=randint(0,1)
+				if order:
+					actFighter(fChar,fPos,eChar,ePos)
+				else:
+					actFighter(eChar,ePos,fChar,fPos)
+										
+			screen.addstr(0,0,str(z))
+		time.sleep(0.1)
+
+def actFighter(fChar,fPos,eChar,ePos):
+	distance=abs(fPos[1]-ePos[1])+abs(fPos[2]-ePos[2])
+	direction=((ePos[1]-fPos[1]),(ePos[2]-fPos[2]))
+	if 'Rr'.find(fChar)!=-1:
+		if distance<2:
+			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
+		else:
+			fighterMove(fPos,direction)		
+	elif 'Gg'.find(fChar)!=-1:
+		pass
+	elif 'Bb'.find(fChar)!=-1:
+		pass
+	elif 'Tit!'.find(fChar)!=-1:
+		pass
+	elif '_-'.find(fChar)!=-1:
+		pass
+
+def fighterMove(fPos,direction):
+	char=gameMap[fPos[0]][fPos[1]][fPos[2]]
+	if direction[1]>0 and gameMap[fPos[0]][fPos[1]][fPos[2]+1]==' ':
+		formatUpdate(fPos[0],fPos[1],fPos[2],' ')
+		formatUpdate(fPos[0],fPos[1],fPos[2]+1,char)
+	elif direction[1]<0 and gameMap[fPos[0]][fPos[1]][fPos[2]-1]==' ':
+		formatUpdate(fPos[0],fPos[1],fPos[2],' ')
+		formatUpdate(fPos[0],fPos[1],fPos[2]-1,char)
+	if direction[0]>0 and gameMap[fPos[0]][fPos[1]+1][fPos[2]]==' ':
+		formatUpdate(fPos[0],fPos[1],fPos[2],' ')
+		formatUpdate(fPos[0],fPos[1]+1,fPos[2],char)
+	elif direction[0]<0 and gameMap[fPos[0]][fPos[1]-1][fPos[2]]==' ':
+		formatUpdate(fPos[0],fPos[1],fPos[2],' ')
+		formatUpdate(fPos[0],fPos[1]-1,fPos[2],char)
+
+def caveIn():
+	for z in range(9):
+		for y in range(45):
+			for x in range(60):
+				willCave=True
+				for i in range(5):
+					for j in range(5):
+						try:
+							char=gameMap[z][y-2+i][x-2+j]
+						except:
+							char='o'
+						if support.find(char)!=-1:
+							willCave=False
+				if willCave:
 					for i in range(5):
 						for j in range(5):
-							try:
-								char=gameMap[z][y-2+i][x-2+j]
-							except:
-								char='o'
-							if support.find(char)!=-1:
-								willCave=False
-					if willCave:
-						for i in range(5):
-							for j in range(5):
-								if y+i-2<45 and y+i-2>=0 and x+j-2<60 and x+j-2>=0:
-									update(formatUpdate(z,y-2+i,x-2+j,'o'))
-									time.sleep(0.1)
-						update(formatUpdate(z,y,x,'$'))
-						
-					
+							if y+i-2<45 and y+i-2>=0 and x+j-2<60 and x+j-2>=0:
+								formatUpdate(z,y-2+i,x-2+j,'o')
+								time.sleep(0.2)
+					formatUpdate(z,y,x,'$')
 
 def tryMove(direction, mining=False):
 	priceUpDown=3
@@ -285,8 +343,8 @@ def tryMove(direction, mining=False):
 					if resources[0]<0:
 						resources[6]+=resources[0]
 						resources[0]=0
-					update(formatUpdate(pos[0],pos[1],pos[2],'Z'))
-					update(formatUpdate(newpos[0],newpos[1],newpos[2],'Z'))
+					formatUpdate(pos[0],pos[1],pos[2],'Z')
+					formatUpdate(newpos[0],newpos[1],newpos[2],'Z')
 				else:
 					mining=False
 			else:
@@ -296,7 +354,7 @@ def tryMove(direction, mining=False):
 						resources[6]+=resources[0]
 						resources[0]=0
 					resources[resourceNames.index(char)]+=1
-					update(formatUpdate(newpos[0],newpos[1],newpos[2],' '))
+					formatUpdate(newpos[0],newpos[1],newpos[2],' ')
 				else:
 					mining=False
 		else:
@@ -304,7 +362,7 @@ def tryMove(direction, mining=False):
 
 		if char=='@':
 			resources[0]+=1
-			update(formatUpdate(newpos[0],newpos[1],newpos[2],' '))
+			formatUpdate(newpos[0],newpos[1],newpos[2],' ')
 
 		if mining or not isSolid:
 			if not inRange(newpos):
@@ -355,11 +413,7 @@ def update(s, send=True):
 
 	if send:
 		sock.sendto(s ,address)
-
-	if server:
-		pass #thread.start_new_thread(checkConflicts,())
-	else:
-		pass #thread.start_new_thread(checkCaveIns,())
+		time.sleep(0.05)
 
 def harvest():
 	while running:
@@ -380,10 +434,10 @@ def addAnimals():
 		while gameMap[9][y][x]!=' ':
 			y=randint(0,44)
 			x=randint(0,59)
-		update(formatUpdate(9,y,x,'@'))
+		formatUpdate(9,y,x,'@')
 
 def formatUpdate(z,y,x,c):
-	return str(z)+'0'*(y<10)+str(y)+'0'*(x<10)+str(x)+c
+	update(str(z)+'0'*(y<10)+str(y)+'0'*(x<10)+str(x)+c)
 
 def checkCaveIns():
 	toFill=[]
@@ -572,6 +626,9 @@ def printMap():
 					except:
 						pass
 						
+				if displaychar=='_' and enemies.find(char)!=-1:
+					displaychar=' '
+
 				screen.addstr(i+4, 17+j ,displaychar ,curses.color_pair(2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)))
 
 	if pos[0]==0:
@@ -601,6 +658,9 @@ def printMap():
 					except:
 						pass
 
+				if displaychar=='_' and enemies.find(char)!=-1:
+					displaychar=' '
+
 				screen.addstr(i+10, 17+j ,displaychar ,curses.color_pair(2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)))
 
 	for i in range(11):
@@ -624,13 +684,17 @@ def printMap():
 					displaychar=enemies[friends.index(char)]
 				except:
 					pass
+
+			if displaychar=='_' and enemies.find(char)!=-1:
+				displaychar=' '
+
 			if i==5 and j==7:
 				color=6
 			else:
 				color=2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
-	#screen.addstr(21,0,str(enemies + ' ' + friends))
+	screen.addstr(21,0,str(enemies + ' ' + friends))
 	screen.refresh()
 
 def visible(z,y,x):

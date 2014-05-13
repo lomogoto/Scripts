@@ -17,8 +17,5 @@ su -c "cp tmuxstat /usr/local/bin/"
 #quickly add commit and push a directory to github
 su -c "cp gitup /usr/local/bin/"
 
-#LAN subterranean real-time strategy game 
+#LAN subterranean player-time strategy game (moves, for the most part, as fast as the player can)
 #su -c "cp cave-in.py /usr/local/bin/cave-in"
-
-#python example of a curses 'Hello World' program
-#su -c "cp HelloCurses.py /usr/local/bin/"
