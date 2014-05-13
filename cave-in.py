@@ -719,7 +719,7 @@ def printMap():
 				color=2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
-	screen.addstr(21,0,str(enemies + ' ' + friends))
+	#screen.addstr(21,0,str(enemies + ' ' + friends))
 	screen.refresh()
 
 def visible(z,y,x):
