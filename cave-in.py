@@ -106,7 +106,18 @@ gameMap=[]
 resourceNames=('@', 'o', '#', '%', '*', '&', '$')
 resources=    [ 0,   0,   0,   0,   0,   0,   0]
 itemNames=('Traps', 'Powder', 'Guns', 'Bombs', 'Runners', 'Gunners', 'Bombers', 'Towers', 'Farms', 'Walls', 'Bridges')
-items=    [ 0,       0,        0,      0,       0,         0,         0,         0,        0,       0,       0]
+items=    [ 0,       0,        0,      0,       0,         0,         0,         0,        1,       0,       0]
+itemPrices=(((0,2,1,0,0,1,0),(0,0,0,1,0,0,0,0,0,0,0)),
+			((0,2,0,1,1,0,0),(0,0,0,0,0,0,0,0,0,0,0)),
+			((0,0,1,0,0,0,0),(0,1,0,0,0,0,0,0,0,0,0)),
+			((0,0,2,0,1,1,0),(0,2,0,0,0,0,0,0,0,0,0)),
+			((2,0,1,0,0,0,0),(0,0,0,0,0,0,0,0,0,0,0)),
+			((1,0,0,0,0,0,0),(0,0,1,0,1,0,0,0,0,0,0)),
+			((1,0,0,0,0,0,0),(0,0,0,1,0,1,0,0,0,0,0)),
+			((2,10,5,0,0,0,0),(0,0,0,0,0,1,1,0,0,0,0)),
+			((15,0,0,0,0,0,0),(0,0,0,0,0,0,0,0,0,0,0)),
+			((0,2,1,0,0,0,0),(0,0,0,0,0,0,0,0,0,0,0)),
+			((0,20,10,0,0,0,0),(0,0,0,0,0,0,0,0,0,0,0)))
 pos=[9,22,14+31*server]
 menuPos=0
 running = True
@@ -352,7 +363,8 @@ def caveIn():
 					formatUpdate(z,y,x,'$')
 
 def tryMove(direction, mining=False):
-	priceUpDown=3
+	priceSameLevel=2
+	priceUpDown=6
 	global pos
 	newpos=(pos[0]+direction[0], pos[1]+direction[1], pos[2]+direction[2])
 	if newpos[0]>=0 and newpos[0]<10 and newpos[1]>=0 and newpos[1]<45 and newpos[2]>=0 and newpos[2]<60:
@@ -373,8 +385,8 @@ def tryMove(direction, mining=False):
 				else:
 					mining=False
 			else:
-				if resources[0]+resources[6]>=1:
-					resources[0]-=1
+				if resources[0]+resources[6]>=priceSameLevel:
+					resources[0]-=priceSameLevel
 					if resources[0]<0:
 						resources[6]+=resources[0]
 						resources[0]=0
@@ -719,8 +731,21 @@ def printMap():
 				color=2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
+	screen.addstr(16,0,' '*40)
+	screen.addstr(16,0,getPriceString())
 	#screen.addstr(21,0,str(enemies + ' ' + friends))
 	screen.refresh()
+
+def getPriceString():
+	price=''
+	for i in range(7):
+		if itemPrices[menuPos][0][i]>0:
+			price+=str(itemPrices[menuPos][0][i])+' '+resourceNames[i]+', '
+	for i in range(11):
+		if itemPrices[menuPos][1][i]>0:
+			price+=str(itemPrices[menuPos][1][i])+' '+itemNames[i]+', '
+	price=price[0:-2]
+	return price
 
 def visible(z,y,x):
 	if clear.find(gameMap[z][y][x])!=-1:
