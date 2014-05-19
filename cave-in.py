@@ -96,7 +96,7 @@ else:
 				address=('192.168.0.'+address[0], address[1])
 			except:
 				address=(eval(address[0]),address[1])
-	sock.sendto('connected', address)
+	#sock.sendto('connected', address)
 
 #### #### #### #### ####
 
@@ -331,9 +331,11 @@ def fighterMove(fPos,direction):
 	if direction[1]>0 and gameMap[fPos[0]][fPos[1]][fPos[2]+1]==' ':
 		formatUpdate(fPos[0],fPos[1],fPos[2],' ')
 		formatUpdate(fPos[0],fPos[1],fPos[2]+1,char)
+		fPos=(fPos[0],fPos[1],fPos[2]+1)
 	elif direction[1]<0 and gameMap[fPos[0]][fPos[1]][fPos[2]-1]==' ':
 		formatUpdate(fPos[0],fPos[1],fPos[2],' ')
 		formatUpdate(fPos[0],fPos[1],fPos[2]-1,char)
+		fPos=(fPos[0],fPos[1],fPos[2]-1)
 	if direction[0]>0 and gameMap[fPos[0]][fPos[1]+1][fPos[2]]==' ':
 		formatUpdate(fPos[0],fPos[1],fPos[2],' ')
 		formatUpdate(fPos[0],fPos[1]+1,fPos[2],char)
