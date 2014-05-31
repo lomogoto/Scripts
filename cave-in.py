@@ -218,9 +218,7 @@ def main(scr):
 			pos=[9,22,7+45*server]
 
 		elif c==buyKey:
-			canBuy=True
-			if canBuy:
-				items[menuPos]+=1
+			tryBuy()
 		elif c==placeKey:
 			canPlace=(menuPos==0 or menuPos>3)
 			if canPlace and items[menuPos]>0:
@@ -749,6 +747,26 @@ def getPriceString():
 			price+=str(itemPrices[menuPos][1][i])+' '+itemNames[i]+', '
 	price=price[0:-2]
 	return price
+
+def tryBuy():
+	gold=resources[6]
+	for i in range(7):
+		if itemPrices[menuPos][0][i]>resources[i]:
+			gold-=itemPrices[menuPos][0][i]-resources[i]
+	if gold<0:
+		return
+	for i in range(11):
+		if items[i]-itemPrices[menuPos][1][i]<0:
+			return
+	for i in range(7):
+		newVal=resources[i]-itemPrices[menuPos][0][i]
+		if newVal<0:
+			newVal=0
+		resources[i]=newVal
+	resources[6]=gold
+	for i in range(11):
+		items[i]-=itemPrices[menuPos][1][i]
+	items[menuPos]+=1
 
 def visible(z,y,x):
 	if clear.find(gameMap[z][y][x])!=-1:
