@@ -106,7 +106,7 @@ gameMap=[]
 resourceNames=('@', 'o', '#', '%', '*', '&', '$')
 resources=    [ 0,   0,   0,   0,   0,   0,   0]
 itemNames=('Traps', 'Powder', 'Guns', 'Bombs', 'Runners', 'Gunners', 'Bombers', 'Towers', 'Farms', 'Walls', 'Bridges')
-items=    [ 0,       0,        0,      0,       0,         0,         0,         0,        1,       0,       0]
+items=    [ 0,       0,        0,      0,       0,         0,         0,         0,        0,       0,       0]
 itemPrices=(((0,2,1,0,0,1,0),(0,0,0,1,0,0,0,0,0,0,0)),
 			((0,2,0,1,1,0,0),(0,0,0,0,0,0,0,0,0,0,0)),
 			((0,0,1,0,0,0,0),(0,1,0,0,0,0,0,0,0,0,0)),
@@ -461,6 +461,7 @@ def harvest():
 			for x in range(0,60):
 				if gameMap[9][y][x]==('f'*server + 'F'*(not server)):
 					resources[0]+=1
+		resources[0]+=1
 		printMap()
 
 def addAnimals():
