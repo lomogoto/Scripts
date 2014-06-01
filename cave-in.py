@@ -133,7 +133,7 @@ clear=enemies+friends+'@~ Z'
 solid='o#%*&$X~'
 canMine='o#%*&$'
 support='o#%*&$X'
-canNotMove='!iZ'
+canNotMove='!iZ'+enemies+solid
 
 def main(scr):
 	global screen
