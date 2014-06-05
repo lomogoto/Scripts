@@ -660,17 +660,7 @@ def printMap():
 							char='.'
 				except:
 					pass
-				displaychar=char
-				if friends<enemies:
-					try:
-						displaychar=friends[enemies.index(char)]
-					except:
-						pass
-				else:
-					try:
-						displaychar=enemies[friends.index(char)]
-					except:
-						pass
+				displaychar=toDisplayChar(char)
 						
 				if displaychar=='_' and enemies.find(char)!=-1:
 					displaychar=' '
@@ -692,17 +682,7 @@ def printMap():
 							char='.'
 				except:
 					pass
-				displaychar=char
-				if friends<enemies:
-					try:
-						displaychar=friends[enemies.index(char)]
-					except:
-						pass
-				else:
-					try:
-						displaychar=enemies[friends.index(char)]
-					except:
-						pass
+				displaychar=toDisplayChar(char)
 
 				if displaychar=='_' and enemies.find(char)!=-1:
 					displaychar=' '
@@ -719,17 +699,7 @@ def printMap():
 						char='.'
 			except:
 				pass
-			displaychar=char
-			if friends<enemies:
-				try:
-					displaychar=friends[enemies.index(char)]
-				except:
-					pass
-			else:
-				try:
-					displaychar=enemies[friends.index(char)]
-				except:
-					pass
+			displaychar=toDisplayChar(char)
 
 			if displaychar=='_' and enemies.find(char)!=-1:
 				displaychar=' '
@@ -817,8 +787,8 @@ def displayNum(n):
 		return '0'+str(n)
 	else:
 		return str(n)
-
+#try:
 curses.wrapper(main)
-
+#finally
 sock.sendto('quit', address)
 sock.close()
