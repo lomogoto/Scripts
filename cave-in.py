@@ -135,6 +135,10 @@ canMine='o#%*&$'
 support='o#%*&$X'
 canNotMove='!iZ'+enemies+solid
 
+menu=False
+mine=False
+moveChar=' '
+
 def main(scr):
 	global screen
 	screen=scr
@@ -162,10 +166,10 @@ def main(scr):
 	thread.start_new_thread(harvest,())
 	thread.start_new_thread(getUpdates,())
 
-	menu=False
-	mine=False
+	global menu
+	global mine
+	global moveChar
 
-	moveChar=' '
 	while running:
 		printMap()
 		try:
@@ -202,19 +206,19 @@ def main(scr):
 			else:
 				tryMove((0,-1,0), mine)
 
-		elif c==digKey:
+		elif c==digKey and not menu:
 			tryMove((-1,0,0), mine)
 
-		elif c==climbKey:
+		elif c==climbKey and not menu:
 			tryMove((1,0,0), mine)
 
-		elif c==leftKey:
+		elif c==leftKey and not menu:
 			tryMove((0,0,-1), mine)
 
-		elif c==rightKey:
+		elif c==rightKey and not menu:
 			tryMove((0,0,1), mine)
 
-		elif c==homeKey:
+		elif c==homeKey and not menu:
 			pos=[9,22,7+45*server]
 
 		elif c==buyKey:
@@ -456,13 +460,14 @@ def update(s, send=True):
 		time.sleep(0.05)
 
 def harvest():
+	baseFoodProduction=3
 	while running:
 		time.sleep(randint(10,15))
 		for y in range(0,45):
 			for x in range(0,60):
 				if gameMap[9][y][x]==('f'*server + 'F'*(not server)):
 					resources[0]+=1
-		resources[0]+=1
+		resources[0]+=baseFoodProduction
 		printMap()
 
 def addAnimals():
@@ -735,10 +740,29 @@ def printMap():
 				color=2*(enemies.find(char)!=-1) + 3*(friends.find(char)!=-1) + 4*(char=='X') + 5*(char=='~') + 7*('$Z@'.find(char)!=-1)
 			screen.addstr(i+4, 1+j ,displaychar ,curses.color_pair(color))
 
-	screen.addstr(16,0,' '*40)
+	screen.addstr(16,0,' '*44)
 	screen.addstr(16,0,getPriceString())
+	if menu:
+		screen.addstr(16,40,'Menu')
+	elif mine:
+		if moveChar==' ':
+			screen.addstr(16,40,'Mine')
+		else:
+			screen.addstr(16,38,'Move '+toDisplayChar(moveChar))
 	#screen.addstr(21,0,str(enemies + ' ' + friends))
 	screen.refresh()
+
+def toDisplayChar(char):
+	if friends<enemies:
+		try:
+			return friends[enemies.index(char)]
+		except:
+			return char
+	else:
+		try:
+			return enemies[friends.index(char)]
+		except:
+			return char
 
 def getPriceString():
 	price=''
