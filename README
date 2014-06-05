@@ -17,5 +17,5 @@ su -c "cp tmuxstat /usr/local/bin/"
 #quickly add commit and push a directory to github
 su -c "cp gitup /usr/local/bin/"
 
-#LAN subterranean player-time strategy game (moves, for the most part, as fast as the player can)
+#simple subterranean player-time strategy game over LAN including rudimentary crafting
 #su -c "cp cave-in.py /usr/local/bin/cave-in"
