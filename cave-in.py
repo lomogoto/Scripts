@@ -301,17 +301,19 @@ def actFighter(fChar,fPos,eChar,ePos):
 	distance=abs(fPos[1]-ePos[1])+abs(fPos[2]-ePos[2])
 	direction=((ePos[1]-fPos[1]),(ePos[2]-fPos[2]))
 	if 'Rr'.find(fChar)!=-1:
-		if distance<2 and '!i'.find(eChar)==-1:
+		if distance>1:
+			fighterMove(fPos,direction)
+		elif 'Tit!'.find(eChar)==-1:
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
-		else:
-			fighterMove(fPos,direction)		
 	elif 'Gg'.find(fChar)!=-1:
-		if distance<3 and '!i_-'.find(eChar)==-1:
+		if distance>2:
+			fighterMove(fPos,direction)
+		elif 'Tit!_-'.find(eChar)==-1:
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
-		else:
-			fighterMove(fPos,direction)		
 	elif 'Bb'.find(fChar)!=-1:
-		if distance<3 and '_-'.find(eChar)==-1:
+		if distance>3:
+			fighterMove(fPos,direction)
+		elif '_-'.find(eChar)==-1:
 			for i in range(3):
 				if '~_-'.find(gameMap[fPos[0]][fPos[1]-2][fPos[2]-1+i])==-1:
 					formatUpdate(fPos[0],fPos[1]-2,fPos[2]-1+i,' ')
@@ -321,8 +323,6 @@ def actFighter(fChar,fPos,eChar,ePos):
 				for j in range(5):
 					if '~_-'.find(gameMap[fPos[0]][fPos[1]-1+i][fPos[2]-2+j])==-1:
 						formatUpdate(fPos[0],fPos[1]-1+i,fPos[2]-2+j,' ')
-		else:
-			fighterMove(fPos,direction)		
 	elif 'Tit!'.find(fChar)!=-1:
 		if distance<5 and '!i_-'.find(eChar)==-1:
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
