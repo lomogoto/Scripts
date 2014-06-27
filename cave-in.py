@@ -25,6 +25,7 @@ def gameHelp():
 	print '  homeKey'
 	print '  quitKey'
 	print '  loadTime'
+	print '  port'
 	print 'Examples:'
 	print '  Copy into dot file to use WASD control:'
 	print "    leftKey='a'"
@@ -42,6 +43,7 @@ for arg in argv:
 			if flag=='h':
 				gameHelp()
 
+port=4682
 leftKey='h'
 rightKey='l'
 upKey='k'
@@ -67,8 +69,6 @@ try:
 	print('\nConfiguration Complete')
 except:
 	pass #print('\nNo Configuration Found\nUsing default settings')
-
-port = 4682
 
 yourIP = socket.gethostbyname(socket.gethostname())
 
