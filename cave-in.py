@@ -296,6 +296,7 @@ def fixConflicts():
 					actFighter(eChar,ePos,fChar,fPos)
 										
 			screen.addstr(0,0,str(z))
+		#if a player has won: send game won message
 		time.sleep(0.1)
 
 def actFighter(fChar,fPos,eChar,ePos):
