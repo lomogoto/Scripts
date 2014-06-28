@@ -44,6 +44,7 @@ for arg in argv:
 				gameHelp()
 
 port=4682
+
 leftKey='h'
 rightKey='l'
 upKey='k'
@@ -131,7 +132,7 @@ if server:
 	friends=swap
 clear=enemies+friends+'@~ Z'
 solid='o#%*&$X~'
-canMine='o#%*&$'
+canMine='o#%*&$X'
 support='o#%*&$X'
 canNotMove='!iZ'+enemies+solid
 
@@ -311,7 +312,7 @@ def actFighter(fChar,fPos,eChar,ePos):
 		elif 'Tit!_-'.find(eChar)==-1:
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
 	elif 'Bb'.find(fChar)!=-1:
-		if distance>3:
+		if distance>2:
 			fighterMove(fPos,direction)
 		elif '_-'.find(eChar)==-1:
 			for i in range(3):
@@ -324,10 +325,10 @@ def actFighter(fChar,fPos,eChar,ePos):
 					if '~_-'.find(gameMap[fPos[0]][fPos[1]-1+i][fPos[2]-2+j])==-1:
 						formatUpdate(fPos[0],fPos[1]-1+i,fPos[2]-2+j,' ')
 	elif 'Tit!'.find(fChar)!=-1:
-		if distance<5 and '!i_-'.find(eChar)==-1:
+		if distance<4 and 'Tit!_-'.find(eChar)==-1:
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
 	elif '_-'.find(fChar)!=-1:
-		if distance<2 and '!i_-'.find(eChar)==-1:
+		if distance<2 and 'Tit!_-'.find(eChar)==-1:
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
 			formatUpdate(fPos[0]-1,fPos[1],fPos[2],eChar)
 
@@ -370,6 +371,7 @@ def caveIn():
 					formatUpdate(z,y,x,'$')
 
 def tryMove(direction, mining=False):
+	priceWall=3
 	priceSameLevel=2
 	priceUpDown=6
 	global pos
@@ -378,11 +380,16 @@ def tryMove(direction, mining=False):
 		char=gameMap[newpos[0]][newpos[1]][newpos[2]]
 		isSolid=solid.find(char)!=-1
 		isUpDown=direction[0]!=0
+
+		isWall=gameMap[newpos[0]][newpos[1]][newpos[2]]=='X'
+
 		if isUpDown and (char!='Z' and gameMap[pos[0]][pos[1]][pos[2]]!='Z'):
 			isSolid=True
 		if mining and (canMine.find(char)!=-1 or (char==' ' and isUpDown)):
 			if isUpDown:
-				if resources[0]+resources[6]>=priceUpDown:
+				if resources[0]+resources[6]>=priceUpDown and (not isWall or items[3]>=priceWall):
+					if isWall:
+						items[3]-=priceWall
 					resources[0]-=priceUpDown
 					if resources[0]<0:
 						resources[6]+=resources[0]
@@ -392,15 +399,19 @@ def tryMove(direction, mining=False):
 				else:
 					mining=False
 			else:
-				if resources[0]+resources[6]>=priceSameLevel:
+				if resources[0]+resources[6]>=priceSameLevel and (not isWall or items[3]>=priceWall):
+					if isWall:
+						items[3]-=priceWall
 					resources[0]-=priceSameLevel
 					if resources[0]<0:
 						resources[6]+=resources[0]
 						resources[0]=0
-					resources[resourceNames.index(char)]+=1
+					if not isWall:
+						resources[resourceNames.index(char)]+=1
 					formatUpdate(newpos[0],newpos[1],newpos[2],' ')
 				else:
 					mining=False
+			
 		else:
 			mining=False
 
