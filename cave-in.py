@@ -73,7 +73,9 @@ except:
 
 yourIP = socket.gethostbyname(socket.gethostname())
 
-sock=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+'''sock=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)'''
 
 address=('',0)
 
@@ -81,8 +83,11 @@ server = False
 
 if raw_input('\nServer?(Y/n) ')!='n':
 	print "\nYour IP address:", yourIP
+	'''sock.bind(('', port))'''
 	sock.bind(('', port))
-	address=sock.recvfrom(1024)[1]
+	sock.listen(1)
+	sock, address=sock.accept()
+	'''address=sock.recvfrom(1024)[1]'''
 	server = True
 
 else:
@@ -97,7 +102,8 @@ else:
 				address=('192.168.0.'+address[0], address[1])
 			except:
 				address=(eval(address[0]),address[1])
-	sock.sendto('connected', address)
+	'''sock.sendto('connected', address)'''
+	sock.connect(address)
 
 #### #### #### #### ####
 
@@ -252,7 +258,7 @@ def main(scr):
 				formatUpdate(pos[0],pos[1],pos[2],char)
 
 		elif c==quitKey:
-			screen.addstr(0,0,'quit?(y/N)')
+			screen.addstr(0,0,'Quit?(y/N)')
 			c=chr(screen.getch())
 			if not running:
 				pass
@@ -471,7 +477,8 @@ def inRange(pos):
 def getUpdates():
 	global running
 	while running:
-		text=sock.recvfrom(1024)[0]
+		'''text=sock.recvfrom(1024)[0]'''
+		text=sock.recv(1024)
 		if text!='quit':
 			update(text, False)
 		else:
@@ -498,7 +505,8 @@ def update(s, send=True):
 			screen.refresh()
 
 	if send:
-		sock.sendto(s ,address)
+		'''sock.sendto(s ,address)'''
+		sock.send(s)
 		time.sleep(0.05)
 
 def harvest():
@@ -644,7 +652,8 @@ def sendMap():
 	screen.addstr(4,2,'Sending Map')
 	for z in range(10):
 		for y in range(45):
-			sock.sendto(str(gameMap[z][y]), address)
+			'''sock.sendto(str(gameMap[z][y]), address)'''
+			sock.send(str(gameMap[z][y]))
 			time.sleep(loadTime/450.0)
 		screen.addstr(5,z+3,'#')
 		screen.refresh()
@@ -654,7 +663,8 @@ def getMap():
 	for z in range(10):
 		level=[]
 		for y in range(45):
-			level.append(eval(sock.recvfrom(2048)[0]))
+			'''level.append(eval(sock.recvfrom(2048)[0]))'''
+			level.append(eval(sock.recv(300)))
 		gameMap.append(level)
 		screen.addstr(5,z+3,'#')
 		screen.refresh()
@@ -832,5 +842,6 @@ def displayNum(n):
 try:
 	curses.wrapper(main)
 finally:
-	sock.sendto('quit', address)
+	'''sock.sendto('quit', address)'''
+	sock.send('quit')
 	sock.close()
