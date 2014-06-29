@@ -254,7 +254,9 @@ def main(scr):
 		elif c==quitKey:
 			screen.addstr(0,0,'quit?(y/N)')
 			c=chr(screen.getch())
-			if running and c=='y':
+			if not running:
+				pass
+			elif c=='y':
 				running=False
 			elif c==':':
 				good=True
