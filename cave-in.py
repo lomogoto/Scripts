@@ -310,7 +310,7 @@ def actFighter(fChar,fPos,eChar,ePos):
 	elif 'Gg'.find(fChar)!=-1:
 		if distance>2:
 			fighterMove(fPos,direction)
-		elif 'Tit!_-'.find(eChar)==-1:
+		elif 'Tit!_-'.find(eChar)==-1 and clearShot(fPos,ePos):
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
 	elif 'Bb'.find(fChar)!=-1:
 		if distance>2:
@@ -325,13 +325,29 @@ def actFighter(fChar,fPos,eChar,ePos):
 				for j in range(5):
 					if '~_-'.find(gameMap[fPos[0]][fPos[1]-1+i][fPos[2]-2+j])==-1:
 						formatUpdate(fPos[0],fPos[1]-1+i,fPos[2]-2+j,' ')
-	elif 'Tit!'.find(fChar)!=-1:
+	elif 'Tit!'.find(fChar)!=-1 and clearShot(fPos,ePos):
 		if distance<4 and 'Tit!_-'.find(eChar)==-1:
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
 	elif '_-'.find(fChar)!=-1:
 		if distance<2 and 'Tit!_-'.find(eChar)==-1:
 			formatUpdate(ePos[0],ePos[1],ePos[2],' ')
 			formatUpdate(fPos[0]-1,fPos[1],fPos[2],eChar)
+
+def clearShot(fPos,ePos):
+	yDif=abs(fPos[1]-ePos[1])
+	xDif=abs(fPos[2]-ePos[2])
+	if yDif<=xDif:
+		for i in range(min(ePos[1],fPos[1]+1),max(ePos[1],fPos[1]+1)):
+			for j in range(min(ePos[2]+1,fPos[2]),max(ePos[2]+1,fPos[2])):
+				if gameMap[fPos[0]][i][j]!=' ':
+					return False
+	if xDif<=yDif:
+		for i in range(min(ePos[1]+1,fPos[1]),min(ePos[1]+1,fPos[1])):
+			for j in range(min(ePos[2],fPos[2]+1),min(ePos[2],fPos[2]+1)):
+				if gameMap[fPos[0]][i][j]!=' ':
+					return False
+		
+	return True
 
 def fighterMove(fPos,direction):
 	char=gameMap[fPos[0]][fPos[1]][fPos[2]]
@@ -351,25 +367,27 @@ def fighterMove(fPos,direction):
 		formatUpdate(fPos[0],fPos[1]-1,fPos[2],char)
 
 def caveIn():
-	for z in range(9):
-		for y in range(45):
-			for x in range(60):
-				willCave=True
-				for i in range(5):
-					for j in range(5):
-						try:
-							char=gameMap[z][y-2+i][x-2+j]
-						except:
-							char='o'
-						if support.find(char)!=-1:
-							willCave=False
-				if willCave:
+	while running:
+		for z in range(9):
+			for y in range(45):
+				for x in range(60):
+					willCave=True
 					for i in range(5):
 						for j in range(5):
-							if y+i-2<45 and y+i-2>=0 and x+j-2<60 and x+j-2>=0:
-								formatUpdate(z,y-2+i,x-2+j,'o')
-								time.sleep(0.2)
-					formatUpdate(z,y,x,'$')
+							try:
+								char=gameMap[z][y-2+i][x-2+j]
+							except:
+								char='o'
+							if support.find(char)!=-1:
+								willCave=False
+					if willCave:
+						for i in range(5):
+							for j in range(5):
+								if y+i-2<45 and y+i-2>=0 and x+j-2<60 and x+j-2>=0:
+									formatUpdate(z,y-2+i,x-2+j,'o')
+									time.sleep(0.2)
+						formatUpdate(z,y,x,'$')
+		time.sleep(1)
 
 def tryMove(direction, mining=False):
 	priceWall=3
