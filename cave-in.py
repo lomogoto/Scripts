@@ -120,6 +120,8 @@ itemPrices=((( 0, 2, 1, 0, 0, 1, 0),(0,0,0,1,0,0,0,0,0,0,0)),
 			(( 0, 2, 1, 0, 0, 0, 0),(0,0,0,0,0,0,0,0,0,0,0)),
 			(( 0,50,20, 0, 0, 0, 0),(0,0,0,0,0,0,0,0,0,0,0)))
 pos=[9,22,14+31*server]
+home=pos
+base=[9,22,7+45*server]
 menuPos=0
 running = True
 
@@ -220,7 +222,7 @@ def main(scr):
 			tryMove((0,0,1), mine)
 
 		elif c==homeKey and not menu:
-			pos=[9,22,7+45*server]
+			pos=home
 
 		elif c==buyKey:
 			tryBuy()
@@ -295,8 +297,9 @@ def fixConflicts():
 				else:
 					actFighter(eChar,ePos,fChar,fPos)
 										
-			screen.addstr(0,0,str(z))
-		#if a player has won: send game won message
+			#screen.addstr(0,0,str(z))
+		if str(gameMap[9][22]).find('!')==-1 or str(gameMap[9][22]).find('i')==-1:
+			update('won')
 		time.sleep(0.1)
 
 def actFighter(fChar,fPos,eChar,ePos):
@@ -480,10 +483,17 @@ def update(s, send=True):
 		y=int(s[1:3])
 		x=int(s[3:5])
 		c=s[5]
+		gameMap[z][y][x]=c
+		printMap()
 	except:
-		pass
-	gameMap[z][y][x]=c
-	printMap()
+		if s=='won':
+			global running
+			running=False
+			if '!i'.find(gameMap[base[0]][base[1]][base[2]])==-1:
+				screen.addstr(0,0,'YOU LOST')
+			else:
+				screen.addstr(0,0,'YOU WON')
+			screen.refresh()
 
 	if send:
 		sock.sendto(s ,address)
@@ -817,8 +827,8 @@ def displayNum(n):
 		return '0'+str(n)
 	else:
 		return str(n)
-#try:
-curses.wrapper(main)
-#finally
-sock.sendto('quit', address)
-sock.close()
+try:
+	curses.wrapper(main)
+finally:
+	sock.sendto('quit', address)
+	sock.close()
