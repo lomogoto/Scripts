@@ -1,2 +1,2 @@
 #!/bin/bash
-echo $(nmcli dev wifi | grep yes | cut -d "'" -f 2)' '$(acpi | cut -d',' -f 2)$(if [[ $(acpi | grep Charging) != '' ]]; then echo '+'; fi;)
+echo $(nmcli dev wifi | grep "*" | cut -d "Y" -f 2 | cut -d " " -f 3)' '$(acpi | cut -d',' -f 2)$(if [[ $(acpi | grep Charging) != '' ]]; then echo '+'; fi;)
