@@ -6,7 +6,7 @@
 #
 
 #installer for arch user repo with install options to edit package before installing and display README before installing
-su -c "cp aur /usr/local/bin/"
+#su -c "cp aur /usr/local/bin/"
 
 #image to acsii viewer can display many images as ascii art and is designed for use in elinks and similar text-based browsers
 su -c "cp itav /usr/local/bin/"
