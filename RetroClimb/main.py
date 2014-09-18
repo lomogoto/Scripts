@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import pygame
 import random
 
@@ -20,7 +21,7 @@ def main():
     total=-1
     level=-1
     bottom=-1
-    christina=-1
+    easyMode=-1
     
     records_=[]
     with open('records.txt') as records:
@@ -31,8 +32,8 @@ def main():
                 total=int(line.rstrip())
             elif bottom==-1:
                 bottom=int(line.rstrip())
-            elif christina==-1:
-                christina=int(line.rstrip())
+            elif easyMode==-1:
+                easyMode=int(line.rstrip())
             else:
                 records_.append(int(line.rstrip()))
         
@@ -173,10 +174,10 @@ def main():
                     x,y=event.pos
                     if x!=0:
                         if y<32*su:
-                            if christina:
-                                christina=0
+                            if easyMode:
+                                easyMode=0
                             else:
-                                christina=1
+                                easyMode=1
                         elif y<64*su:
                             level=0
                             botton=0
@@ -201,10 +202,10 @@ def main():
             screen.fill(GRASS,((x2,32*su),(124*su,su)))
             screen.fill(DOCK,((0,64*su),(sx,sy-64*su)))
             screen.fill(DOCK,((128*su,0),(sx,sy)))
-            if christina:
-                screen.blit(font.render(('Christina Mode (On)'),True,TEXT),(su,su))
+            if easyMode:
+                screen.blit(font.render(('Easy Mode (On)'),True,TEXT),(su,su))
             else:
-                screen.blit(font.render(('Christina Mode (Off)'),True,TEXT),(su,su))
+                screen.blit(font.render(('Easy Mode (Off)'),True,TEXT),(su,su))
             if level==0:
                 screen.blit(font.render(('Reset Layer (Done)'),True,TEXT),(su,57*su))
             else:
@@ -216,7 +217,7 @@ def main():
             clock.tick(FPS)
             pygame.display.flip()
         
-        if christina:
+        if easyMode:
             level=0
             bottom=0
         
@@ -224,7 +225,7 @@ def main():
             records_.write(str(level)+'\n')
             records_.write(str(total)+'\n')
             records_.write(str(bottom)+'\n')
-            records_.write(str(christina)+'\n')
+            records_.write(str(easyMode)+'\n')
             for record in records:
                 records_.write(str(record)+'\n')
         
@@ -443,7 +444,7 @@ def main():
                         enemies_.append(enemy-1)
                     enemies=enemies_
                 
-                if land[-1]>land[-2] and random.randint(0,4)==0 and not christina:
+                if land[-1]>land[-2] and random.randint(0,4)==0 and not easyMode:
                     enemies.append(len(land)-1)
                 
                 #print enemies
@@ -463,7 +464,7 @@ def main():
                 #print enemies
             
             if land[8]==hole and shift[1]>=10:
-                if highscore>=500+savehighscore and level!=2 and not christina:# and random.randint(0,1)==0:
+                if highscore>=500+savehighscore and level!=2 and not easyMode:# and random.randint(0,1)==0:
                     fall=4.25
                     offset[0]=3
                     shift[1]=0
@@ -492,9 +493,11 @@ def main():
                 level-=1
                 savehighscore=highscore
             elif highscore>=1000+savehighscore and bottom and not boss:
+                enemies=[]
+                bottom=0
                 boss=True
-                level=-1
-                land=[land[0],land[1],land[2],hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole]
+                #level=-1
+                land=[land[0],land[1],land[2],land[3],land[5],land[6],land[7],land[8],land[9],land[10],land[11],hole,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole]
             
             if boss and level==2:
                 bat=False
@@ -749,7 +752,7 @@ def main():
             records_.write(str(level)+'\n')
             records_.write(str(total)+'\n')
             records_.write(str(bottom)+'\n')
-            records_.write(str(christina)+'\n')
+            records_.write(str(easyMode)+'\n')
             for record in records:
                 records_.write(str(record)+'\n')
                 
