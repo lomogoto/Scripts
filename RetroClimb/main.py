@@ -494,7 +494,6 @@ def main():
                 savehighscore=highscore
             elif highscore>=1000+savehighscore and bottom and not boss:
                 enemies=[]
-                bottom=0
                 boss=True
                 #level=-1
                 land=[land[0],land[1],land[2],land[3],land[5],land[6],land[7],land[8],land[9],land[10],land[11],hole,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole,hole]
