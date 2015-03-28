@@ -1,0 +1,22 @@
+0 A
+1 B
+2 X
+3 Y
+4 LB
+5 RB
+6 Back
+7 Start
+8 XBox
+9 LStick
+10 RStick
+11 Left
+12 Right
+13 Up
+14 Dow
+
+0 LH
+1 LV
+2 LT
+3 RH
+4 RV
+5 RT
