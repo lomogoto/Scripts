@@ -30,7 +30,8 @@ while running:
 		exit()
 	elif command=='clear':
 		g.particles=[]
-
+	elif command=='m':
+		display.move()
 	elif command=='e':
 		display.add_electron()
 	elif command=='p':
