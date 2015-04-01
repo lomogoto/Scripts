@@ -6,7 +6,7 @@ import forces
 running=True
 compute_times=0
 command=''
-
+time=0
 while running:
 	while compute_times>0:
 		for i in range(len(g.particles)):
@@ -18,7 +18,8 @@ while running:
 					g.particles[i].apply_force(forces.strong(g.particles[i], g.particles[j]))
 		for particle in g.particles:
 			particle.update()
-		compute_times=compute_times-1
+		compute_times-=1
+		time+=1
 
 	display.update()
 
@@ -29,7 +30,10 @@ while running:
 	if command=='exit':
 		exit()
 	elif command=='clear':
+		time=0
+		display.move_position=(0,0)
 		g.particles=[]
+		print('Time: 0')
 	elif command=='m':
 		display.move()
 	elif command=='e':
@@ -41,5 +45,6 @@ while running:
 	else:
 		try:
 			compute_times=int(command)
+			print('Time: '+str(time+compute_times))
 		except:
 			pass

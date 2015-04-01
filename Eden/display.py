@@ -33,16 +33,12 @@ def update():
 
 def add_electron():
 	pygame.event.clear()
-	pos1=pos2=None
-	while pos1==None:
+	pos=None
+	while pos==None:
 		for event in pygame.event.get():
 			if event.type == pygame.MOUSEBUTTONDOWN:
-				pos1=event.pos
-	while pos2==None:
-		for event in pygame.event.get():
-			if event.type == pygame.MOUSEBUTTONDOWN:
-				pos2=event.pos
-	g.particles.append(particle.particle((pos1[0]+move_position[0],c.world_height-pos1[1]-move_position[1]), c.me, -1, False, (c.e_velocity, -f.get_angle(pos1, pos2)-math.pi)))
+				pos=event.pos
+	g.particles.append(particle.particle((pos[0]+move_position[0],c.world_height-pos[1]-move_position[1]), c.me, -1, False))
 
 def add_proton():
 	pygame.event.clear()

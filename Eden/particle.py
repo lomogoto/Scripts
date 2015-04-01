@@ -13,6 +13,8 @@ class particle():
 		self.new_velocity=self.velocity
 
 	def update(self):
+		if self.new_velocity[0]>c.max_speed:
+			self.new_velocity=(c.max_speed,self.new_velocity[1])
 		self.velocity=self.new_velocity
 		self.position=(self.position[0]+c.frame*self.velocity[0]*math.cos(self.velocity[1]), self.position[1]+c.frame*self.velocity[0]*math.sin(self.velocity[1]))
 		if self.position[0]<0:
