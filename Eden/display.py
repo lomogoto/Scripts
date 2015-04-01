@@ -38,7 +38,7 @@ def add_electron():
 		for event in pygame.event.get():
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				pos=event.pos
-	g.particles.append(particle.particle((pos[0]+move_position[0],c.world_height-pos[1]-move_position[1]), c.me, -1, False))
+	g.particles.append(particle.particle((pos[0]+move_position[0],c.world_height-pos[1]-move_position[1]), c.me, -1, False, 1))
 
 def add_proton():
 	pygame.event.clear()

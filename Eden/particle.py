@@ -3,12 +3,13 @@ import c
 import math
 
 class particle():
-	def __init__(self, position, mass, charge, color=False, velocity=(0,0)):
+	def __init__(self, position, mass, charge, color=False, spin=0, velocity=(0,0)):
 		self.charge=charge
 		self.color=color
 		self.mass=mass
 		self.position=position
 		self.velocity=velocity
+		self.spin=spin
 
 		self.new_velocity=self.velocity
 
@@ -32,11 +33,21 @@ class particle():
 
 	def apply_force(self, force):
 		self.new_velocity=f.vector_add(self.new_velocity, (force[0]/self.mass*c.frame, force[1]))
+		return None
+		if self.new_velocity[0]<0:
+			self.new_velocity=(self.new_velocity[0]*-1, self.new_velocity[1]+2*math.pi)
+		while self.new_velocity[1]>=2*math.pi:
+			self.new_velocity=(self.new_velocity[0], self.new_velocity[1]-2*math.pi)
+		while self.new_velocity[1]<0:
+			self.new_velocity=(self.new_velocity[0], self.new_velocity[1]+2*math.pi)
+		
 
 	def get_color(self):
 		if self.charge>0:
 			return (255,0,0)
-		elif self.charge<0:
-			return (0,255,255)
+		elif self.spin<0:
+			return (0,0,255)
+		elif self.spin>0:
+			return (0,255,0)
 		else:
 			return (255,255,255)
