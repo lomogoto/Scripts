@@ -33,7 +33,7 @@ class particle():
 
 	def apply_force(self, force):
 		self.new_velocity=f.vector_add(self.new_velocity, (force[0]/self.mass*c.frame, force[1]))
-		return None
+
 		if self.new_velocity[0]<0:
 			self.new_velocity=(self.new_velocity[0]*-1, self.new_velocity[1]+2*math.pi)
 		while self.new_velocity[1]>=2*math.pi:
@@ -41,6 +41,7 @@ class particle():
 		while self.new_velocity[1]<0:
 			self.new_velocity=(self.new_velocity[0], self.new_velocity[1]+2*math.pi)
 		
+		self.new_velocity=(self.new_velocity[0]*(1-1e-3),self.new_velocity[1])
 
 	def get_color(self):
 		if self.charge>0:
