@@ -8,6 +8,21 @@ class Room():
 		self.doors=[0,0,0,0]
 		self.entered=False
 		self.locked=False
+
+	def generate_image(self):
+		img=pygame.Surface((36,16))
+		img.fill((102,51,0))
+		for i in xrange(150):
+			img.fill((153,102,51),((randint(0,35),randint(0,15)),(1,1)))
+		for i in xrange(150):
+			img.fill((153,51,0),((randint(0,35),randint(0,15)),(1,1)))
+
+		if self.end:
+			img.fill((0,0,0),((16,5),(4,6)))
+			img.fill((0,0,0),((15,6),(6,4)))
+
+		self.image=pygame.transform.scale(img, (144,64))
+
 	def get_next_room_number(self, direction):
 		if direction==0 and self.number>7:
 			return self.number-8
@@ -37,3 +52,6 @@ class Room():
 		if pygame.sprite.spritecollide(door, group, False) and self.doors[1]:
 			print self.number
 			return 1
+		door.rect=pygame.Rect((70,30),(20,20))
+		if self.end and pygame.sprite.spritecollide(door, group, False):
+			return -1

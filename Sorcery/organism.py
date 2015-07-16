@@ -27,7 +27,9 @@ class Organism(pygame.sprite.Sprite):
 	def update_image(self):
 		self.image=pygame.transform.rotate(self.base_image, self.orientation)
 	
-	def knock(self):
+	def knock(self, orientation=None):
+		if orientation!=None:
+			self.orientation=orientation
 		if self.health<1:
 			return
 		if self.orientation==0:

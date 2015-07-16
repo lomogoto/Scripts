@@ -44,6 +44,7 @@ imgHeart=pygame.image.load('Images/heart.png').convert()
 imgHeart.set_colorkey((255,255,255))
 imgOrb=pygame.image.load('Images/orb.png').convert()
 imgOrb.set_colorkey((255,255,255))
+imgRoom=pygame.image.load('Images/room.png').convert()
 
 def get_scaling():
 	if fullx/gamex > fully/gamey:
@@ -103,24 +104,30 @@ def init_game():
 	running=1
 	while running:
 		check_esc()
-		screen.fill((0,0,255))
-		screen.fill((102,102,102),((8,8),(144,64)))
+		screen.fill((0,0,0))
+		screen.blit(imgRoom,(0,0))
+		screen.blit(global_vars.get_current_room().image, (8,8))
+		doors=global_vars.get_current_room().doors
+		if not doors[3]:
+			screen.fill((0,0,0),((0,0),(8,88)))
+		if not doors[0]:
+			screen.fill((0,0,0),((0,0),(160,8)))
+		if not doors[2]:
+			screen.fill((0,0,0),((0,72),(160,16)))
+		if not doors[1]:
+			screen.fill((0,0,0),((152,0),(8,88)))
 		global_vars.get_players().update()
 		global_vars.get_monsters().update()
 		global_vars.get_hitboxes().update()
 		global_vars.get_hitboxes().draw(screen)
 		global_vars.get_monsters().draw(screen)
 		global_vars.get_players().draw(screen)
-		screen.fill((0,0,0),((0,0),(8,88)))
-		screen.fill((0,0,0),((0,0),(160,8)))
-		screen.fill((0,0,0),((0,72),(160,16)))
-		screen.fill((0,0,0),((152,0),(8,88)))
 		for r in global_vars.get_rooms():
 			if r.entered:
 				color=(204,204,204)
 				if global_vars.get_current_room().number==r.number:
 					color=(204,0,204)
-				screen.fill(color, ((152+r.number%8,72+r.number/8),(1,1)))
+				screen.fill(color, ((152+r.number%8,80+r.number/8),(1,1)))
 
 		running=0
 		for p in global_vars.get_players():
@@ -147,7 +154,7 @@ def init_game():
 				m.stun=box.stun
 				m.poison=box.poison
 			if len(boxes)>0:
-				m.knock()
+				m.knock(boxes[0].direction+180)
 			if m.health<1:
 				m.kill()
 

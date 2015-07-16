@@ -17,7 +17,13 @@ def get_current_room():
 	return rooms[current_room_num]
 
 def move_room(direction):
-	if get_current_room().get_next_room_number(direction)!=None:
+	if direction==-1:
+		make_floor()
+		global hitboxes
+		hitboxes.empty()
+		global monsters
+		monsters.empty()
+	elif get_current_room().get_next_room_number(direction)!=None:
 		get_current_room().entered=True
 		global current_room_num
 		current_room_num=get_current_room().get_next_room_number(direction)
@@ -42,6 +48,8 @@ def add_monsters():
 	pass
 
 def make_floor():
+	global rooms
+	rooms=[]
 	for i in range(64):
 		rooms.append(room.Room(i))
 	r1=copy.copy(get_current_room())
@@ -53,8 +61,10 @@ def make_floor():
 			r1.doors[direction]=1
 			r2.doors[direction-2]=1
 			r1=copy.copy(r2)
-	r1.end=True
+	r2.end=True
 	get_current_room().entered=True
+	for r in rooms:
+		r.generate_image()
 
 def get_screen():
 	return screen
