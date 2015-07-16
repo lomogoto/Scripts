@@ -59,29 +59,6 @@ def check_esc():
 	if pygame.key.get_pressed()[pygame.K_ESCAPE]:
 		exit()
 
-def make_floor(starting_room):
-	doors=[]
-	for i in xrange(84):
-		doors.append(0)
-	room=starting_room
-	for i in range(randint(5,10)):
-		direction=randint(0,3)
-		if direction==0 and room-7<0:
-			doors[room+room/7*6-7]=1
-			room-=7
-		elif direction==3 and room%7!=0:
-			doors[room+room/7*6-1]=1
-			room-=1
-		elif direction==1 and room%7!=6:
-			doors[room+room/7*6]=1
-			room+=1
-		elif direction==2 and room+7>48:
-			doors[room+room/7*6+6]=1
-			room+=6
-	for i in range(randint(40,60)):
-		doors[randint(0,83)]=1
-	return [doors,room]
-
 def init_game():
 	joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 	for js in joysticks:
@@ -119,6 +96,8 @@ def init_game():
 		global_vars.add_player(player.Player(i, js))
 		i+=1
 
+	global_vars.make_floor()
+
 	global_vars.add_monster(slime.Slime())
 
 	running=1
@@ -136,6 +115,12 @@ def init_game():
 		screen.fill((0,0,0),((0,0),(160,8)))
 		screen.fill((0,0,0),((0,72),(160,16)))
 		screen.fill((0,0,0),((152,0),(8,88)))
+		for r in global_vars.get_rooms():
+			if r.entered:
+				color=(204,204,204)
+				if global_vars.get_current_room().number==r.number:
+					color=(204,0,204)
+				screen.fill(color, ((152+r.number%8,72+r.number/8),(1,1)))
 
 		running=0
 		for p in global_vars.get_players():
@@ -172,7 +157,9 @@ def init_game():
 			screen.blit(imgOrb,(40*p.special_num+16,80))
 			screen.blit(imgNum[p.orbs],(40*p.special_num+24,80))
 			
-		
+		global_vars.move_room(global_vars.get_current_room().at_door(global_vars.players))
+			
+			
 		pygame.event.pump()
 		clock.tick(30)
 		update()

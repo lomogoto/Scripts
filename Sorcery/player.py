@@ -53,7 +53,7 @@ class Player(organism.Organism):
 
 	def special(self):
 		if self.special_num==0:
-			pass
+			super(Player,self).shoot(self.special_image, 16, 10, 0, 0, 0, 10)
 		elif self.special_num==1:
 			super(Player,self).shoot(self.special_image, 10, -3, 0, 0, 0, 10)
 		elif self.special_num==2:
