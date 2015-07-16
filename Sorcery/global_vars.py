@@ -3,6 +3,10 @@ import pygame
 monsters=pygame.sprite.Group()
 players=pygame.sprite.Group()
 hitboxes=pygame.sprite.Group()
+screen=None
+
+def get_screen():
+	return screen
 
 def add_monster(m):
 	global monsters

@@ -1,7 +1,7 @@
 import pygame
 
 class Hitbox(pygame.sprite.Sprite):
-	def __init__(self, image, pos, direction, strength, speed, stun, poison):
+	def __init__(self, image, pos, direction, strength, speed, stun, poison, time=60):
 		super(Hitbox, self).__init__()
 		self.image=pygame.transform.rotate(image, direction)
 		self.rect=image.get_rect(center=pos)
@@ -10,7 +10,7 @@ class Hitbox(pygame.sprite.Sprite):
 		self.direction=direction
 		self.poison=poison
 		self.speed=speed
-		self.time=60
+		self.time=time
 
 	def update(self):
 		if self.time==0:
