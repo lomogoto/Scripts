@@ -5,6 +5,7 @@ from random import randint
 import global_vars
 import player
 import slime
+import pot
 
 A_btn=0
 B_btn=1
@@ -99,7 +100,8 @@ def init_game():
 
 	global_vars.make_floor()
 
-	global_vars.add_monster(slime.Slime())
+	global_vars.add_monster(slime.Slime((40,40)))
+	global_vars.add_monster(pot.Pot((30,30)))
 
 	running=1
 	while running:
@@ -119,9 +121,11 @@ def init_game():
 		global_vars.get_players().update()
 		global_vars.get_monsters().update()
 		global_vars.get_hitboxes().update()
+		global_vars.get_items().update()
 		global_vars.get_hitboxes().draw(screen)
 		global_vars.get_monsters().draw(screen)
 		global_vars.get_players().draw(screen)
+		global_vars.get_items().draw(screen)
 		for r in global_vars.get_rooms():
 			if r.entered:
 				color=(204,204,204)
@@ -141,6 +145,10 @@ def init_game():
 				p.health-=m.shot_strength
 				p.stun=m.shot_stun
 				p.poison=m.shot_poison
+			
+			for i in pygame.sprite.spritecollide(p, global_vars.get_items(), True):
+				i.act(p)
+			
 			if len(boxes)>0 or len(monsters)>0:
 				p.knock()
 			if p.health>0:

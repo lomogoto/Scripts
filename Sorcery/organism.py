@@ -1,5 +1,5 @@
 import pygame
-import random
+from random import randint
 import global_vars
 import hitbox
 
@@ -14,6 +14,7 @@ class Organism(pygame.sprite.Sprite):
 		self.shot_poison=0
 		self.shot_speed=0
 		self.drop_items=[]
+		self.drop_chances=10
 		self.clock=0
 		self.speed=0
 		self.attacking=0
@@ -49,7 +50,7 @@ class Organism(pygame.sprite.Sprite):
 		[x,y]=self.rect.center
 		move=[0,0]
 		if x!=pos[0]:
-			move=[self.speed*(pos[0]-x)/abs(pos[0]-x)*random.randint(0,1),0]
+			move=[self.speed*(pos[0]-x)/abs(pos[0]-x)*randint(0,1),0]
 		if move==[0,0]:
 			if pos[1]==y:
 				move=[self.speed*(pos[0]-x)/abs(pos[0]-x),0]
@@ -71,6 +72,11 @@ class Organism(pygame.sprite.Sprite):
 		pass
 	def attack(self):
 		pass
+
+	def kill(self):
+		if not randint(0,self.drop_chances):
+			global_vars.add_item(self.drop_items[randint(0,len(self.drop_items)-1)](self.rect.center))
+		super(Organism, self).kill()
 
 	def shoot(self, image=None, d=None, strength=None, speed=None, stun=None, poison=None, time=60):
 		

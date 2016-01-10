@@ -6,9 +6,11 @@ from random import randint
 monsters=pygame.sprite.Group()
 players=pygame.sprite.Group()
 hitboxes=pygame.sprite.Group()
+items=pygame.sprite.Group()
 rooms=[]
 current_room_num=randint(0,63)
 screen=None
+level=0
 
 def get_rooms():
 	return rooms
@@ -17,21 +19,22 @@ def get_current_room():
 	return rooms[current_room_num]
 
 def move_room(direction):
+	global hitboxes
+	global monsters
+	global items
 	if direction==-1:
 		make_floor()
-		global hitboxes
 		hitboxes.empty()
-		global monsters
 		monsters.empty()
+		items.empty()
 	elif get_current_room().get_next_room_number(direction)!=None:
 		get_current_room().entered=True
 		global current_room_num
 		current_room_num=get_current_room().get_next_room_number(direction)
 		get_current_room().entered=True
-		global hitboxes
 		hitboxes.empty()
-		global monsters
 		monsters.empty()
+		items.empty()
 		add_monsters()
 
 		for p in players:
@@ -47,13 +50,22 @@ def move_room(direction):
 def add_monsters():
 	pass
 
+def add_item(i):
+	global items
+	items.add(i)
+
+def get_items():
+	return items
+
 def make_floor():
+	global level
+	level+=1
 	global rooms
 	rooms=[]
 	for i in range(64):
 		rooms.append(room.Room(i))
 	r1=copy.copy(get_current_room())
-	for i in range(randint(15,20)):
+	for i in xrange(randint(15,20)):
 		direction=randint(0,3)
 		num=r1.get_next_room_number(direction)
 		if not num==None:
@@ -63,6 +75,14 @@ def make_floor():
 			r1=copy.copy(r2)
 	r2.end=True
 	get_current_room().entered=True
+
+	for i in xrange(randint(30,60)):
+		r=rooms[randint(0,63)]
+		d=randint(0,3)
+		if r.get_next_room_number(d)!=None:
+			rooms[r.get_next_room_number(d)].doors[d-2]=1
+			r.doors[d]=1
+
 	for r in rooms:
 		r.generate_image()
 
@@ -101,3 +121,7 @@ def reset():
 	rooms=[]
 	global current_room_num
 	current_room_num=randint(0,63)
+	global level
+	level=0
+	global items
+	items.empty()

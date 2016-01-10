@@ -38,19 +38,15 @@ class Room():
 		door=pygame.sprite.Sprite()
 		door.rect=pygame.Rect((79,8),(2,1))
 		if pygame.sprite.spritecollide(door, group, False) and self.doors[0]:
-			print self.number
 			return 0
 		door.rect=pygame.Rect((79,71),(2,1))
 		if pygame.sprite.spritecollide(door, group, False) and self.doors[2]:
-			print self.number
 			return 2
 		door.rect=pygame.Rect((8,39),(1,2))
 		if pygame.sprite.spritecollide(door, group, False) and self.doors[3]:
-			print self.number
 			return 3
 		door.rect=pygame.Rect((151,39),(1,2))
 		if pygame.sprite.spritecollide(door, group, False) and self.doors[1]:
-			print self.number
 			return 1
 		door.rect=pygame.Rect((70,30),(20,20))
 		if self.end and pygame.sprite.spritecollide(door, group, False):
